@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS jeux (
   date_sortie DATE,
   description TEXT,
   image_url TEXT,
-  UNIQUE (source, id_source)
+  UNIQUE (source, id_source),
+  KEY idx_jeux_titre (titre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS genres (
@@ -24,8 +25,11 @@ CREATE TABLE IF NOT EXISTS jeu_genres (
 
 CREATE TABLE IF NOT EXISTS joueurs (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  pseudo VARCHAR(64) NOT NULL UNIQUE,
-  credits BIGINT UNSIGNED NOT NULL DEFAULT 0
+  pseudo VARCHAR(32) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  credits BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  starter_claimed TINYINT(1) NOT NULL DEFAULT 0,
+  cree_le TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS collections (

@@ -4,7 +4,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: infinityfree-vitrine
+  group: infinityfree-deploy
   cancel-in-progress: false
 jobs:
   deploy:
@@ -16,12 +16,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Préparer les fichiers publics
-        run: |
-          mkdir -p dist/api
-          cp docs/index.html dist/
-          cp -R docs/assets dist/
-          php -l api/public/index.php
-          cp api/public/index.php dist/api/
+        run: bash scripts/build-dist.sh
       - name: Installer lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
       - name: Transférer en FTPS explicite

@@ -1,2 +1,52 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GameVault</title><link rel="stylesheet" href="./assets/style.css"></head><body><main><h1>GameVault</h1><p>Collectionne des cartes de jeux vidéo et découvre les raretés de tes boosters.</p><p>Vitrine du projet — les comptes et l’ouverture de boosters ne sont pas encore disponibles.</p></main></body></html>
+<html lang='fr'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>GameVault</title>
+<meta name='description' content='Collectionne des jeux vidéo sous forme de cartes.'>
+<link rel='stylesheet' href='./assets/style.css'>
+<script src='./assets/app.js' defer></script>
+</head>
+<body>
+<header class='top'>
+  <h1>GameVault</h1>
+  <nav class='tabs'>
+    <button type='button' class='tab active' data-view='catalogue'>Catalogue</button>
+    <button type='button' class='tab' data-view='collection'>Ma collection</button>
+  </nav>
+  <div id='account' class='account'></div>
+</header>
+<main>
+  <section class='toolbar'>
+    <input id='search' type='search' placeholder='Rechercher un jeu' maxlength='100' aria-label='Rechercher un jeu'>
+    <select id='genre' aria-label='Filtrer par genre'><option value=''>Tous les genres</option></select>
+  </section>
+  <section id='starter' class='panel' hidden>
+    <p id='starter-text'>Bienvenue ! Ouvre ton pack de départ pour recevoir 5 jeux.</p>
+    <button type='button' id='starter-btn'>Ouvrir mon pack</button>
+    <div id='starter-result' class='grid'></div>
+  </section>
+  <p id='status' role='status'></p>
+  <section id='grid' class='grid'></section>
+  <nav class='pager'>
+    <button type='button' id='prev'>Précédent</button>
+    <span id='page-info'></span>
+    <button type='button' id='next'>Suivant</button>
+  </nav>
+</main>
+<dialog id='auth'>
+  <form id='auth-form'>
+    <h2>Connexion</h2>
+    <label>Pseudo<input id='pseudo' required minlength='3' maxlength='32' autocomplete='username'></label>
+    <label>Mot de passe<input id='password' type='password' required minlength='8' maxlength='200' autocomplete='current-password'></label>
+    <p id='auth-error' class='error' role='alert'></p>
+    <div class='actions'>
+      <button type='submit' value='login'>Se connecter</button>
+      <button type='submit' value='register'>Créer un compte</button>
+      <button type='button' id='auth-cancel'>Annuler</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>
