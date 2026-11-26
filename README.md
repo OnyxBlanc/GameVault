@@ -1,4 +1,4 @@
-# Kyara 2
+# GameVault
 Application web de cartes de jeux vidéo à collectionner.
 
 ## Démarrage local
