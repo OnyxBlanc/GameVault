@@ -1,0 +1,11 @@
+.grid .card{cursor:zoom-in}
+#inspect{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:1rem;padding:1rem;width:min(92vw,24rem)}
+#inspect::backdrop{background:rgba(0,0,0,.78)}
+.in-bar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem}
+#in-pos{color:var(--muted)}
+#in-stage .flip{animation:none;width:100%;max-width:19rem;margin:0 auto}
+.back.stats{flex-direction:column;gap:.35rem;padding:1rem;font-size:.95rem;font-weight:400;letter-spacing:0;text-align:center;color:var(--text);border-color:var(--rc)}
+.stats h3{margin:0;font-size:1.1rem}
+.stats p{margin:0}
+.stats .big{font-size:2.4rem;font-weight:800;color:var(--rc);line-height:1.1}
+#in-hint{color:var(--muted);text-align:center;font-size:.85rem;margin:.6rem 0 0}

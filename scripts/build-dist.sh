@@ -6,4 +6,5 @@ cp docs/index.html dist/
 cp docs/assets/* dist/assets/
 php -l api/public/index.php
 php -l api/public/booster.php
-cp api/public/index.php api/public/booster.php dist/api/
+php -l api/public/carte.php
+cp api/public/index.php api/public/booster.php api/public/carte.php dist/api/
