@@ -1,0 +1,5 @@
+[hidden]{display:none!important}
+#tab-booster.active{border-color:var(--accent);color:var(--accent)}
+#booster h2{margin:0 0 .5rem}
+#b-timer,#b-msg{color:var(--muted);min-height:1.5rem;margin:.5rem 0}
+#b-msg{color:#fca5a5}

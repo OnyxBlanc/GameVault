@@ -6,7 +6,9 @@
 <title>GameVault</title>
 <meta name='description' content='Collectionne des jeux vidéo sous forme de cartes.'>
 <link rel='stylesheet' href='./assets/style.css'>
+<link rel='stylesheet' href='./assets/booster.css'>
 <script src='./assets/app.js' defer></script>
+<script src='./assets/booster.js' defer></script>
 </head>
 <body>
 <header class='top'>
@@ -14,26 +16,40 @@
   <nav class='tabs'>
     <button type='button' class='tab active' data-view='catalogue'>Catalogue</button>
     <button type='button' class='tab' data-view='collection'>Ma collection</button>
+    <button type='button' id='tab-booster'>Booster</button>
   </nav>
   <div id='account' class='account'></div>
 </header>
 <main>
-  <section class='toolbar'>
-    <input id='search' type='search' placeholder='Rechercher un jeu' maxlength='100' aria-label='Rechercher un jeu'>
-    <select id='genre' aria-label='Filtrer par genre'><option value=''>Tous les genres</option></select>
+  <div id='browse'>
+    <section class='toolbar'>
+      <input id='search' type='search' placeholder='Rechercher un jeu' maxlength='100' aria-label='Rechercher un jeu'>
+      <select id='genre' aria-label='Filtrer par genre'><option value=''>Tous les genres</option></select>
+    </section>
+    <section id='starter' class='panel' hidden>
+      <p id='starter-text'>Bienvenue ! Ouvre ton pack de départ pour recevoir 5 jeux.</p>
+      <button type='button' id='starter-btn'>Ouvrir mon pack</button>
+      <div id='starter-result' class='grid'></div>
+    </section>
+    <p id='status' role='status'></p>
+    <section id='grid' class='grid'></section>
+    <nav class='pager'>
+      <button type='button' id='prev'>Précédent</button>
+      <span id='page-info'></span>
+      <button type='button' id='next'>Suivant</button>
+    </nav>
+  </div>
+  <section id='booster' class='panel' hidden>
+    <h2>Boosters</h2>
+    <p id='b-info'></p>
+    <div class='actions'>
+      <button type='button' id='b-free'>Ouvrir un booster gratuit</button>
+      <button type='button' id='b-paid'>Ouvrir un booster</button>
+    </div>
+    <p id='b-timer'></p>
+    <p id='b-msg' role='status'></p>
+    <div id='b-result' class='grid'></div>
   </section>
-  <section id='starter' class='panel' hidden>
-    <p id='starter-text'>Bienvenue ! Ouvre ton pack de départ pour recevoir 5 jeux.</p>
-    <button type='button' id='starter-btn'>Ouvrir mon pack</button>
-    <div id='starter-result' class='grid'></div>
-  </section>
-  <p id='status' role='status'></p>
-  <section id='grid' class='grid'></section>
-  <nav class='pager'>
-    <button type='button' id='prev'>Précédent</button>
-    <span id='page-info'></span>
-    <button type='button' id='next'>Suivant</button>
-  </nav>
 </main>
 <dialog id='auth'>
   <form id='auth-form'>
