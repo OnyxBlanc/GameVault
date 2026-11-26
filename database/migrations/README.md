@@ -1,3 +1,3 @@
 # Migrations MySQL/MariaDB
 
-Le schéma initial actif est `database/mysql/schema.sql`. Ajouter les futures migrations MySQL dans ce dossier, dans l’ordre d’application. Les anciens scripts PostgreSQL dans `database/gamevault/` ne sont pas utilisés sur InfinityFree.
+Le schéma initial actif est `database/mysql/schema.sql`. Ajouter les futures migrations MySQL dans ce dossier, dans l’ordre d’application.

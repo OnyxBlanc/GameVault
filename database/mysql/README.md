@@ -1,6 +1,6 @@
 # GameVault sur InfinityFree
 
-Importer `schema.sql` dans une base MySQL/MariaDB de test sélectionnée dans phpMyAdmin. Le FTP déploie le site et le PHP, pas la base. Le modèle PostgreSQL historique reste intact. Une fiche représente un jeu vidéo, avec sa jaquette en URL.
+Importer `schema.sql` dans une base MySQL/MariaDB de test sélectionnée dans phpMyAdmin. Le FTP déploie le site et le PHP, pas la base. Une fiche représente un jeu vidéo, avec sa jaquette en URL.
 
 ## Collection et crédits
 
@@ -9,4 +9,4 @@ Importer `schema.sql` dans une base MySQL/MariaDB de test sélectionnée dans ph
 - Publier une annonce ne donne aucun crédit. Lors d’une vente entre joueurs, le serveur vérifie le stock et le solde, transfère un exemplaire à l’acheteur et transfère les crédits au vendeur, dans une seule transaction. Si le dernier exemplaire peut être vendu, supprimer la ligne de collection au lieu de mettre sa quantité à zéro.
 - Le PHP renvoie les valeurs confirmées par la base pour que le front puisse actualiser la collection et le solde sans recharger la page ni interroger le serveur en boucle.
 
-Ce commit pose le schéma de départ et les règles. Il n’implémente ni les annonces du marché, ni les routes PHP, ni le workflow FTP.
+Le workflow FTPS est documenté dans le README principal. Les annonces du marché et les routes PHP métier restent à implémenter.
