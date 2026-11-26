@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genere un fichier SQL (jeux, genres, images) depuis l'API RAWG.
+"""Genere un fichier SQL (jeux, genres, images, rarete) depuis l'API RAWG.
 
 Usage : RAWG_API_KEY=xxx python3 tools/import_rawg.py [nombre] [sortie.sql] [--garder-manuel]
 Importer ensuite le fichier avec phpMyAdmin. Ne jamais commiter la cle ni le SQL genere.
@@ -23,6 +23,23 @@ GENRES_FR = {
 
 def esc(value):
     return "'" + str(value).replace('\\', '\\\\').replace("'", "''") + "'"
+
+
+def rarity(rank, total):
+    if rank < 50:
+        return 'ethere'
+    if rank < 500:
+        return 'mythique'
+    share = (rank - 500) / max(1, total - 500)
+    if share < 0.02:
+        return 'legendaire'
+    if share < 0.10:
+        return 'epique'
+    if share < 0.30:
+        return 'rare'
+    if share < 0.60:
+        return 'peu_commun'
+    return 'commun'
 
 
 def fetch_page(key, page):
@@ -58,6 +75,8 @@ def main():
     games = list(games.values())[:total]
     if not games:
         sys.exit('Aucun jeu recupere.')
+    if len(games) <= 500:
+        print('Attention : 500 jeux ou moins, tout le catalogue sera ethere ou mythique.')
 
     lines = ['SET NAMES utf8mb4;']
     if not keep_manual:
@@ -70,16 +89,17 @@ def main():
         lines.append('INSERT IGNORE INTO genres (nom) VALUES ' + ', '.join('(%s)' % esc(n) for n in names) + ';')
 
     rows = []
-    for x in games:
+    for rank, x in enumerate(games):
         image = x.get('background_image') or ''
         image = image if image.startswith('https://') else None
         released = x.get('released') or None
-        rows.append('(%s, %s, %s, %s, %s)' % (
+        rows.append('(%s, %s, %s, %s, %s, %s)' % (
             esc('rawg'), esc(x['id']), esc(x['name'][:255]),
-            esc(released) if released else 'NULL', esc(image) if image else 'NULL'))
+            esc(released) if released else 'NULL', esc(image) if image else 'NULL',
+            esc(rarity(rank, len(games)))))
     for i in range(0, len(rows), 100):
-        lines.append('INSERT INTO jeux (source, id_source, titre, date_sortie, image_url) VALUES ' + ', '.join(rows[i:i + 100]) +
-                     ' ON DUPLICATE KEY UPDATE titre=VALUES(titre), date_sortie=VALUES(date_sortie), image_url=VALUES(image_url);')
+        lines.append('INSERT INTO jeux (source, id_source, titre, date_sortie, image_url, rarete) VALUES ' + ', '.join(rows[i:i + 100]) +
+                     ' ON DUPLICATE KEY UPDATE titre=VALUES(titre), date_sortie=VALUES(date_sortie), image_url=VALUES(image_url), rarete=VALUES(rarete);')
 
     links = []
     for x in games:

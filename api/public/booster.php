@@ -5,6 +5,15 @@ const PRICE = 100;
 const COUNT = 5;
 const MAX_FREE = 50;
 const INTERVAL = 300;
+const ODDS = [
+    ['ethere', 100],
+    ['mythique', 900],
+    ['legendaire', 10000],
+    ['epique', 40000],
+    ['rare', 100000],
+    ['peu_commun', 250000],
+    ['commun', 599000],
+];
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -96,6 +105,48 @@ function publicState(array $s): array
     ];
 }
 
+function pickFrom(PDO $pdo, string $rarity): ?int
+{
+    $st = $pdo->prepare('SELECT COUNT(*) FROM jeux WHERE rarete = ?');
+    $st->execute([$rarity]);
+    $n = (int) $st->fetchColumn();
+    if ($n < 1) {
+        return null;
+    }
+    $offset = random_int(0, $n - 1);
+    $st = $pdo->prepare("SELECT id FROM jeux WHERE rarete = ? ORDER BY id LIMIT 1 OFFSET $offset");
+    $st->execute([$rarity]);
+    $id = $st->fetchColumn();
+    return $id === false ? null : (int) $id;
+}
+
+function drawGame(PDO $pdo): int
+{
+    $roll = random_int(1, 1000000);
+    $start = count(ODDS) - 1;
+    $acc = 0;
+    foreach (ODDS as $i => $odd) {
+        $acc += $odd[1];
+        if ($roll <= $acc) {
+            $start = $i;
+            break;
+        }
+    }
+    for ($i = $start; $i < count(ODDS); $i++) {
+        $id = pickFrom($pdo, ODDS[$i][0]);
+        if ($id !== null) {
+            return $id;
+        }
+    }
+    for ($i = $start - 1; $i >= 0; $i--) {
+        $id = pickFrom($pdo, ODDS[$i][0]);
+        if ($id !== null) {
+            return $id;
+        }
+    }
+    throw new RuntimeException('No game available');
+}
+
 $pdo = null;
 
 try {
@@ -173,8 +224,7 @@ try {
 
     $ids = [];
     for ($i = 0; $i < COUNT; $i++) {
-        $offset = random_int(0, $total - 1);
-        $ids[] = (int) $pdo->query("SELECT id FROM jeux ORDER BY id LIMIT 1 OFFSET $offset")->fetchColumn();
+        $ids[] = drawGame($pdo);
     }
     $add = $pdo->prepare('INSERT INTO collections (joueur_id, jeu_id, quantite) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE quantite = quantite + 1');
     foreach ($ids as $gameId) {
@@ -185,7 +235,7 @@ try {
 
     $counts = array_count_values($ids);
     $marks = implode(',', array_fill(0, count($counts), '?'));
-    $st = $pdo->prepare('SELECT j.id, j.titre, j.date_sortie, j.image_url, (SELECT GROUP_CONCAT(g.nom ORDER BY g.nom) FROM jeu_genres jg JOIN genres g ON g.id = jg.genre_id WHERE jg.jeu_id = j.id) AS genres FROM jeux j WHERE j.id IN (' . $marks . ') ORDER BY j.titre');
+    $st = $pdo->prepare('SELECT j.id, j.titre, j.date_sortie, j.image_url, j.rarete, (SELECT GROUP_CONCAT(g.nom ORDER BY g.nom) FROM jeu_genres jg JOIN genres g ON g.id = jg.genre_id WHERE jg.jeu_id = j.id) AS genres FROM jeux j WHERE j.id IN (' . $marks . ') ORDER BY j.titre');
     $st->execute(array_keys($counts));
     $items = [];
     foreach ($st->fetchAll() as $row) {
