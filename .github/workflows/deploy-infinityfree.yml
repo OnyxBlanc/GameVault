@@ -32,7 +32,8 @@ jobs:
           set ssl:verify-certificate yes
           set net:max-retries 2
           set net:timeout 20s
+          set mirror:set-permissions no
           cd /htdocs
-          mirror --reverse --verbose dist .
+          mirror --reverse --no-perms --verbose dist .
           bye
           LFTP
