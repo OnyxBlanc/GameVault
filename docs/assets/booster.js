@@ -10,11 +10,22 @@
     server_error: 'Erreur serveur. Réessaie plus tard.',
     forbidden: 'Requête refusée.'
   };
+  const TIERS = ['commun', 'peu_commun', 'rare', 'epique', 'legendaire', 'mythique', 'ethere'];
+  const LABELS = {
+    commun: 'Commun',
+    peu_commun: 'Peu commun',
+    rare: 'Rare',
+    epique: 'Épique',
+    legendaire: 'Légendaire',
+    mythique: 'Mythique',
+    ethere: 'Éthéré'
+  };
   const byId = (id) => document.getElementById(id);
   let info = null;
   let busy = false;
   let visible = false;
   let timer = null;
+  let revealTimers = [];
 
   async function call(action, method, body) {
     const init = { method, credentials: 'same-origin', headers: {} };
@@ -81,6 +92,73 @@
     render();
   }
 
+  function updateRevealButton() {
+    const button = byId('b-reveal');
+    const closed = document.querySelectorAll('#b-result .flip:not(.open)').length;
+    button.hidden = closed === 0;
+  }
+
+  function reveal(wrap) {
+    if (wrap.classList.contains('open')) {
+      return;
+    }
+    wrap.classList.add('open');
+    wrap.setAttribute('aria-pressed', 'true');
+    updateRevealButton();
+  }
+
+  function makeCard(game, index) {
+    const tier = TIERS.includes(game.rarete) ? game.rarete : 'commun';
+    const wrap = document.createElement('div');
+    wrap.className = 'flip r-' + tier;
+    if (TIERS.indexOf(tier) >= 3) {
+      wrap.classList.add('teaser');
+    }
+    wrap.style.animationDelay = (index * 120) + 'ms';
+    wrap.tabIndex = 0;
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('aria-pressed', 'false');
+    wrap.setAttribute('aria-label', 'Carte face cachée, appuie pour la retourner');
+    const inner = document.createElement('div');
+    inner.className = 'flip-inner';
+    const back = document.createElement('div');
+    back.className = 'face back';
+    back.textContent = 'GV';
+    const front = document.createElement('div');
+    front.className = 'face front';
+    const tag = document.createElement('span');
+    tag.className = 'rarity';
+    tag.textContent = LABELS[tier];
+    const holo = document.createElement('span');
+    holo.className = 'holo';
+    front.append(renderCard(game), tag, holo);
+    inner.append(back, front);
+    wrap.append(inner);
+    wrap.addEventListener('click', () => reveal(wrap));
+    wrap.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        reveal(wrap);
+      }
+    });
+    return wrap;
+  }
+
+  function showPack(items) {
+    revealTimers.forEach(clearTimeout);
+    revealTimers = [];
+    const sorted = items.slice().sort((a, b) => TIERS.indexOf(a.rarete) - TIERS.indexOf(b.rarete));
+    byId('b-result').replaceChildren(...sorted.map(makeCard));
+    updateRevealButton();
+  }
+
+  function revealAll() {
+    const closed = Array.from(document.querySelectorAll('#b-result .flip:not(.open)'));
+    closed.forEach((wrap, index) => {
+      revealTimers.push(setTimeout(() => reveal(wrap), index * 450));
+    });
+  }
+
   async function refresh() {
     if (!state.user || busy) {
       render();
@@ -106,7 +184,7 @@
     byId('b-msg').textContent = '';
     try {
       const data = await call('open', 'POST', { mode });
-      byId('b-result').replaceChildren(...data.items.map(renderCard));
+      showPack(data.items);
       applyState(data.state);
     } catch (error) {
       byId('b-msg').textContent = error.message;
@@ -165,6 +243,24 @@
     byId('booster').hidden = true;
     byId('tab-booster').classList.remove('active');
   }
+
+  const revealButton = document.createElement('button');
+  revealButton.type = 'button';
+  revealButton.id = 'b-reveal';
+  revealButton.textContent = 'Tout révéler';
+  revealButton.hidden = true;
+  byId('b-result').before(revealButton);
+  revealButton.addEventListener('click', revealAll);
+
+  byId('b-result').addEventListener('pointermove', (event) => {
+    const face = event.target.closest('.flip.open .front');
+    if (!face) {
+      return;
+    }
+    const rect = face.getBoundingClientRect();
+    face.style.setProperty('--mx', ((event.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
+    face.style.setProperty('--my', ((event.clientY - rect.top) / rect.height * 100).toFixed(1) + '%');
+  });
 
   byId('tab-booster').addEventListener('click', showBooster);
   document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click', hideBooster));

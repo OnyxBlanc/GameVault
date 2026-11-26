@@ -3,3 +3,32 @@
 #booster h2{margin:0 0 .5rem}
 #b-timer,#b-msg{color:var(--muted);min-height:1.5rem;margin:.5rem 0}
 #b-msg{color:#fca5a5}
+#b-reveal{margin-top:.75rem}
+#b-result{margin-top:1rem}
+.flip{--rc:#9ca3af;--holo:0;position:relative;aspect-ratio:11/17;perspective:900px;cursor:pointer;outline:none;animation:deal .5s ease-out both}
+.flip:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.flip-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.flip.open .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:.9rem;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.back{display:flex;align-items:center;justify-content:center;font-size:2.6rem;font-weight:800;letter-spacing:.08em;color:var(--accent);background:repeating-linear-gradient(45deg,#1e1b4b 0 10px,#17163a 10px 20px);border:2px solid #4338ca}
+.front{transform:rotateY(180deg);box-shadow:0 0 0 2px var(--rc),0 0 26px color-mix(in srgb,var(--rc) 55%,transparent)}
+.front .card{height:100%;border-color:var(--rc);border-radius:inherit}
+.front .card:hover{transform:none;box-shadow:none}
+.rarity{position:absolute;left:.5rem;top:.5rem;z-index:2;background:var(--rc);color:#0b1020;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:0 .55rem;border-radius:999px}
+.holo{position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;opacity:0;mix-blend-mode:color-dodge;background:linear-gradient(115deg,transparent 15%,rgba(255,0,150,.6) 32%,rgba(0,255,220,.6) 48%,rgba(255,230,0,.6) 64%,transparent 80%);background-size:260% 260%;background-position:var(--mx,50%) var(--my,50%);transition:opacity .25s}
+.flip.open:hover .holo{opacity:var(--holo)}
+.r-peu_commun{--rc:#4ade80;--holo:.15}
+.r-rare{--rc:#38bdf8;--holo:.35}
+.r-epique{--rc:#a855f7;--holo:.5}
+.r-legendaire{--rc:#fbbf24;--holo:.65}
+.r-mythique{--rc:#f43f5e;--holo:.8}
+.r-ethere{--rc:#22d3ee;--holo:.95}
+.flip.teaser:not(.open) .back{border-color:var(--rc);box-shadow:0 0 22px var(--rc),inset 0 0 18px color-mix(in srgb,var(--rc) 45%,transparent);animation:pulse 1.6s ease-in-out infinite}
+.flip.open.r-legendaire .holo,.flip.open.r-mythique .holo,.flip.open.r-ethere .holo{opacity:.4;animation:sheen 4s linear infinite}
+.flip.open.r-legendaire:hover .holo,.flip.open.r-mythique:hover .holo,.flip.open.r-ethere:hover .holo{animation:none;opacity:var(--holo)}
+.flip.open.r-ethere .front{animation:aura 2.4s ease-in-out infinite}
+@keyframes deal{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes pulse{50%{box-shadow:0 0 34px var(--rc),inset 0 0 26px color-mix(in srgb,var(--rc) 60%,transparent)}}
+@keyframes sheen{from{background-position:0% 0%}to{background-position:100% 100%}}
+@keyframes aura{0%,100%{box-shadow:0 0 0 2px #22d3ee,0 0 28px #22d3ee}33%{box-shadow:0 0 0 2px #a78bfa,0 0 34px #a78bfa}66%{box-shadow:0 0 0 2px #f472b6,0 0 34px #f472b6}}
+@media (prefers-reduced-motion:reduce){.flip,.flip-inner,.holo,.front,.back{animation:none!important;transition:none!important}}
