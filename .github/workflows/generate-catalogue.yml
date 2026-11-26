@@ -1,0 +1,29 @@
+name: Générer le catalogue RAWG
+on:
+  workflow_dispatch:
+    inputs:
+      nombre:
+        description: Nombre de jeux
+        default: '500'
+        required: true
+permissions:
+  contents: read
+jobs:
+  generate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Générer le SQL
+        env:
+          RAWG_API_KEY: ${{ secrets.RAWG_API_KEY }}
+          NOMBRE: ${{ inputs.nombre }}
+        run: python3 tools/import_rawg.py "$NOMBRE" gamevault_catalogue.sql
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gamevault_catalogue
+          path: gamevault_catalogue.sql
+          retention-days: 3
