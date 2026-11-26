@@ -1,2 +1,3 @@
-# Migrations PostgreSQL
-Prévoir users, rarities, cards (rawg_id nullable), themes, theme_cards, boosters, collection_cards et booster_openings. La collection doit imposer une clé unique sur le couple utilisateur/carte. Versionner les scripts SQL dans l’ordre d’application.
+# Migrations MySQL/MariaDB
+
+Le schéma initial actif est `database/mysql/schema.sql`. Ajouter les futures migrations MySQL dans ce dossier, dans l’ordre d’application. Les anciens scripts PostgreSQL dans `database/gamevault/` ne sont pas utilisés sur InfinityFree.

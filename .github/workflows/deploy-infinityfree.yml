@@ -1,4 +1,4 @@
-name: Déployer la vitrine sur InfinityFree
+name: Déployer GameVault sur InfinityFree
 on:
   workflow_dispatch:
 permissions:
@@ -15,11 +15,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Préparer la vitrine
+      - name: Préparer les fichiers publics
         run: |
-          mkdir -p dist
+          mkdir -p dist/api
           cp docs/index.html dist/
           cp -R docs/assets dist/
+          php -l api/public/index.php
+          cp api/public/index.php dist/api/
       - name: Installer lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
       - name: Transférer en FTPS explicite
