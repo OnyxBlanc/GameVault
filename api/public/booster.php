@@ -4,6 +4,7 @@ declare(strict_types=1);
 const PRICE = 100;
 const COUNT = 5;
 const MAX_FREE = 50;
+const MAX_OPEN = 50;
 const INTERVAL = 300;
 const ODDS = [
     ['ethere', 100],
@@ -99,17 +100,25 @@ function publicState(array $s): array
         'credits' => $s['credits'],
         'free' => $s['free'],
         'max_free' => MAX_FREE,
+        'max_open' => MAX_OPEN,
         'next_in' => $next,
         'price' => PRICE,
         'count' => COUNT,
     ];
 }
 
-function pickFrom(PDO $pdo, string $rarity): ?int
+function rarityCounts(PDO $pdo): array
 {
-    $st = $pdo->prepare('SELECT COUNT(*) FROM jeux WHERE rarete = ?');
-    $st->execute([$rarity]);
-    $n = (int) $st->fetchColumn();
+    $out = [];
+    foreach ($pdo->query('SELECT rarete, COUNT(*) AS n FROM jeux GROUP BY rarete')->fetchAll() as $row) {
+        $out[$row['rarete']] = (int) $row['n'];
+    }
+    return $out;
+}
+
+function pickFrom(PDO $pdo, string $rarity, array $counts): ?int
+{
+    $n = $counts[$rarity] ?? 0;
     if ($n < 1) {
         return null;
     }
@@ -120,7 +129,7 @@ function pickFrom(PDO $pdo, string $rarity): ?int
     return $id === false ? null : (int) $id;
 }
 
-function drawGame(PDO $pdo): int
+function drawGame(PDO $pdo, array $counts): int
 {
     $roll = random_int(1, 1000000);
     $start = count(ODDS) - 1;
@@ -133,13 +142,13 @@ function drawGame(PDO $pdo): int
         }
     }
     for ($i = $start; $i < count(ODDS); $i++) {
-        $id = pickFrom($pdo, ODDS[$i][0]);
+        $id = pickFrom($pdo, ODDS[$i][0], $counts);
         if ($id !== null) {
             return $id;
         }
     }
     for ($i = $start - 1; $i >= 0; $i--) {
-        $id = pickFrom($pdo, ODDS[$i][0]);
+        $id = pickFrom($pdo, ODDS[$i][0], $counts);
         if ($id !== null) {
             return $id;
         }
@@ -169,13 +178,13 @@ try {
         reply(404, ['error' => 'not_found']);
     }
 
-    $mode = '';
+    $n = 0;
     if ($action === 'open') {
         $raw = file_get_contents('php://input', false, null, 0, 1025);
         $data = json_decode($raw === false ? '' : $raw, true);
-        $mode = is_array($data) && is_string($data['mode'] ?? null) ? $data['mode'] : '';
-        if ($mode !== 'free' && $mode !== 'paid') {
-            reply(422, ['error' => 'invalid_mode']);
+        $n = is_array($data) && is_int($data['count'] ?? null) ? $data['count'] : 0;
+        if ($n < 1 || $n > MAX_OPEN) {
+            reply(422, ['error' => 'invalid_count']);
         }
     }
 
@@ -198,53 +207,52 @@ try {
         reply(200, publicState($s));
     }
 
-    if ($mode === 'free' && $s['free'] < 1) {
-        saveState($pdo, $id, $s);
-        $pdo->commit();
-        reply(409, ['error' => 'no_free_booster']);
-    }
-    if ($mode === 'paid' && $s['credits'] < PRICE) {
+    $freeUsed = min($n, $s['free']);
+    $paid = $n - $freeUsed;
+    $cost = $paid * PRICE;
+    if ($s['credits'] < $cost) {
         saveState($pdo, $id, $s);
         $pdo->commit();
         reply(402, ['error' => 'insufficient_credits']);
     }
 
-    $total = (int) $pdo->query('SELECT COUNT(*) FROM jeux')->fetchColumn();
-    if ($total < 1) {
+    $counts = rarityCounts($pdo);
+    if (array_sum($counts) < 1) {
         saveState($pdo, $id, $s);
         $pdo->commit();
         reply(503, ['error' => 'catalogue_empty']);
     }
 
-    if ($mode === 'free') {
-        $s['free'] -= 1;
-    } else {
-        $s['credits'] -= PRICE;
-    }
+    $s['free'] -= $freeUsed;
+    $s['credits'] -= $cost;
 
-    $ids = [];
-    for ($i = 0; $i < COUNT; $i++) {
-        $ids[] = drawGame($pdo);
+    $tally = [];
+    for ($i = 0; $i < COUNT * $n; $i++) {
+        $gameId = drawGame($pdo, $counts);
+        $tally[$gameId] = ($tally[$gameId] ?? 0) + 1;
     }
-    $add = $pdo->prepare('INSERT INTO collections (joueur_id, jeu_id, quantite) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE quantite = quantite + 1');
-    foreach ($ids as $gameId) {
-        $add->execute([$id, $gameId]);
+    $add = $pdo->prepare('INSERT INTO collections (joueur_id, jeu_id, quantite) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantite = quantite + ?');
+    foreach ($tally as $gameId => $qty) {
+        $add->execute([$id, $gameId, $qty, $qty]);
     }
     saveState($pdo, $id, $s);
     $pdo->commit();
 
-    $counts = array_count_values($ids);
-    $marks = implode(',', array_fill(0, count($counts), '?'));
+    $marks = implode(',', array_fill(0, count($tally), '?'));
     $st = $pdo->prepare('SELECT j.id, j.titre, j.date_sortie, j.image_url, j.rarete, (SELECT GROUP_CONCAT(g.nom ORDER BY g.nom) FROM jeu_genres jg JOIN genres g ON g.id = jg.genre_id WHERE jg.jeu_id = j.id) AS genres FROM jeux j WHERE j.id IN (' . $marks . ') ORDER BY j.titre');
-    $st->execute(array_keys($counts));
+    $st->execute(array_keys($tally));
     $items = [];
     foreach ($st->fetchAll() as $row) {
         $row['id'] = (int) $row['id'];
         $row['genres'] = ($row['genres'] ?? '') === '' ? [] : explode(',', $row['genres']);
-        $row['obtenu'] = $counts[$row['id']] ?? 1;
+        $row['obtenu'] = $tally[$row['id']] ?? 1;
         $items[] = $row;
     }
-    reply(200, ['items' => $items, 'state' => publicState($s)]);
+    reply(200, [
+        'items' => $items,
+        'opened' => ['boosters' => $n, 'free' => $freeUsed, 'paid' => $paid, 'cost' => $cost],
+        'state' => publicState($s),
+    ]);
 } catch (Throwable $e) {
     if ($pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

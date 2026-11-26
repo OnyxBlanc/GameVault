@@ -3,6 +3,12 @@
 #booster h2{margin:0 0 .5rem}
 #b-timer,#b-msg{color:var(--muted);min-height:1.5rem;margin:.5rem 0}
 #b-msg{color:#fca5a5}
+#b-summary{margin:.5rem 0}
+#b-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:.6rem;margin:.75rem 0}
+.opt{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;text-align:left;padding:.55rem .8rem}
+.opt small{color:var(--muted);font-size:.78rem}
+.opt.free{border-color:#4ade80}
+.opt.best{box-shadow:0 0 0 2px #4ade80}
 #b-reveal{margin-top:.75rem}
 #b-result{margin-top:1rem}
 .flip{--rc:#9ca3af;--holo:0;position:relative;aspect-ratio:11/17;perspective:900px;cursor:pointer;outline:none;animation:deal .5s ease-out both}
