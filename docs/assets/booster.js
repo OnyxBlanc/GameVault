@@ -93,23 +93,35 @@
   }
 
   function packSvg(n, cards) {
-    return `<svg width='240' height='340' viewBox='0 0 240 340' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>`
-      + "<defs><linearGradient id='pk-bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e7a948'/><stop offset='.48' stop-color='#9a5d17'/><stop offset='1' stop-color='#4d2b07'/></linearGradient>"
-      + "<radialGradient id='pk-glow' cx='50%' cy='46%' r='56%'><stop offset='0' stop-color='#ffd77a' stop-opacity='.55'/><stop offset='1' stop-color='#000' stop-opacity='0'/></radialGradient>"
-      + "<pattern id='pk-crimp' width='6' height='14' patternUnits='userSpaceOnUse'><rect width='3' height='14' fill='#000' opacity='.28'/></pattern></defs>"
-      + "<rect x='8' y='4' width='224' height='332' rx='10' fill='url(#pk-bg)' stroke='#f7cf77' stroke-opacity='.55' stroke-width='1.5'/>"
-      + "<rect x='8' y='4' width='224' height='332' rx='10' fill='url(#pk-glow)'/>"
-      + "<rect x='8' y='4' width='224' height='18' fill='url(#pk-crimp)'/><rect x='8' y='318' width='224' height='18' fill='url(#pk-crimp)'/>"
-      + "<path d='M8 54 L24 48 L40 54 L56 48 L72 54 L88 48 L104 54 L120 48 L136 54 L152 48 L168 54 L184 48 L200 54 L216 48 L232 54' fill='none' stroke='#17130a' stroke-opacity='.55' stroke-width='2'/>"
-      + "<text x='120' y='38' text-anchor='middle' font-size='12' font-weight='800' letter-spacing='4' fill='#17130a' fill-opacity='.82'>GAMEVAULT</text>"
-      + "<circle cx='120' cy='154' r='60' fill='#0e0e14' stroke='#f7cf77' stroke-width='3'/>"
-      + "<circle cx='120' cy='154' r='52' fill='none' stroke='#f59e0b' stroke-opacity='.55' stroke-width='1.5'/>"
-      + "<path d='M120 116l30 17v34l-30 17-30-17v-34z' fill='none' stroke='#fbbf24' stroke-width='4' stroke-linejoin='round'/>"
-      + "<path d='M120 138l16 16-16 16-16-16z' fill='#fbbf24'/>"
-      + `<text x='120' y='246' text-anchor='middle' font-size='21' font-weight='800' fill='#17130a'>${n > 1 ? '×' + n + ' Boosters' : 'Booster'}</text>`
-      + "<text x='120' y='266' text-anchor='middle' font-size='12' font-weight='600' fill='#17130a' fill-opacity='.78'>Catalogue complet</text>"
-      + "<rect x='78' y='282' width='84' height='24' rx='12' fill='#17130a' fill-opacity='.78'/>"
-      + `<text x='120' y='298' text-anchor='middle' font-size='11' font-weight='700' fill='#f4f4f8'>${plural(cards, 'carte')}</text></svg>`;
+    const c1 = n >= 20 ? '#c084fc' : (n >= 10 ? '#38bdf8' : '#f7cf6a');
+    const c2 = n >= 20 ? '#6d28d9' : (n >= 10 ? '#1d4ed8' : '#b46914');
+    const c3 = n >= 20 ? '#1e1038' : (n >= 10 ? '#0c1a38' : '#3a1f05');
+    return `<svg width='260' height='368' viewBox='0 0 260 368' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>`
+      + `<defs>`
+      + `<linearGradient id='pk-bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${c1}'/><stop offset='.48' stop-color='${c2}'/><stop offset='1' stop-color='${c3}'/></linearGradient>`
+      + `<linearGradient id='pk-metal' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#11121a'/><stop offset='.25' stop-color='#303347'/><stop offset='.5' stop-color='#11121a'/><stop offset='.75' stop-color='#35394f'/><stop offset='1' stop-color='#11121a'/></linearGradient>`
+      + `<radialGradient id='pk-glow' cx='50%' cy='44%' r='54%'><stop offset='0' stop-color='#fff6d6' stop-opacity='.55'/><stop offset='.6' stop-color='${c1}' stop-opacity='.18'/><stop offset='1' stop-color='#000' stop-opacity='0'/></radialGradient>`
+      + `<pattern id='pk-crimp' width='8' height='22' patternUnits='userSpaceOnUse'><rect width='4' height='22' fill='#000' opacity='.35'/><rect x='4' width='1' height='22' fill='#fff' opacity='.18'/></pattern>`
+      + `<pattern id='pk-diag' width='14' height='14' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'><line x1='0' y1='0' x2='0' y2='14' stroke='#fff' stroke-opacity='.06' stroke-width='2'/></pattern>`
+      + `</defs>`
+      + `<rect x='10' y='4' width='240' height='360' rx='14' fill='url(#pk-bg)' stroke='#fff3c4' stroke-opacity='.65' stroke-width='1.5'/>`
+      + `<rect x='10' y='4' width='240' height='360' rx='14' fill='url(#pk-diag)'/>`
+      + `<rect x='10' y='4' width='240' height='360' rx='14' fill='url(#pk-glow)'/>`
+      + `<rect x='10' y='4' width='240' height='22' rx='4' fill='url(#pk-metal)'/><rect x='10' y='4' width='240' height='22' fill='url(#pk-crimp)'/>`
+      + `<rect x='10' y='342' width='240' height='22' rx='4' fill='url(#pk-metal)'/><rect x='10' y='342' width='240' height='22' fill='url(#pk-crimp)'/>`
+      + `<rect x='20' y='34' width='220' height='300' rx='10' fill='none' stroke='#fff6d6' stroke-opacity='.28' stroke-width='1.2'/>`
+      + `<path d='M10 58 L26 52 L42 58 L58 52 L74 58 L90 52 L106 58 L122 52 L138 58 L154 52 L170 58 L186 52 L202 58 L218 52 L234 58 L250 52' fill='none' stroke='#09090d' stroke-opacity='.55' stroke-width='2'/>`
+      + `<text x='130' y='47' text-anchor='middle' font-size='11' font-weight='900' letter-spacing='5' fill='#fff7dc' fill-opacity='.92'>GAMEVAULT</text>`
+      + `<g opacity='.25' stroke='#fff7dc' stroke-width='1.2'><line x1='130' y1='76' x2='130' y2='244'/><line x1='46' y1='160' x2='214' y2='160'/><line x1='70' y1='100' x2='190' y2='220'/><line x1='190' y1='100' x2='70' y2='220'/></g>`
+      + `<circle cx='130' cy='160' r='68' fill='#0c0d16' stroke='#fde68a' stroke-width='3'/>`
+      + `<circle cx='130' cy='160' r='59' fill='none' stroke='${c1}' stroke-opacity='.65' stroke-width='1.6' stroke-dasharray='6 4'/>`
+      + `<path d='M130 118l34 19v38l-34 19-34-19v-38z' fill='rgba(245,197,24,.1)' stroke='#fde047' stroke-width='4' stroke-linejoin='round'/>`
+      + `<path d='M130 140l18 18-18 18-18-18z' fill='#fde047'/>`
+      + `<circle cx='54' cy='96' r='3' fill='#fff7dc' opacity='.8'/><circle cx='208' cy='106' r='2.5' fill='#fff7dc' opacity='.75'/><circle cx='200' cy='218' r='3' fill='#fff7dc' opacity='.8'/>`
+      + `<text x='130' y='262' text-anchor='middle' font-size='22' font-weight='900' fill='#fff9e6'>${n > 1 ? '×' + n + ' BOOSTERS' : 'BOOSTER'}</text>`
+      + `<text x='130' y='282' text-anchor='middle' font-size='11' font-weight='700' letter-spacing='1.5' fill='#fff5d6' fill-opacity='.82'>ÉDITION CATALOGUE</text>`
+      + `<rect x='74' y='296' width='112' height='26' rx='13' fill='#0a0b12' fill-opacity='.86' stroke='#fde68a' stroke-opacity='.5'/>`
+      + `<text x='130' y='313' text-anchor='middle' font-size='12' font-weight='800' fill='#fde68a'>${plural(cards, 'carte')}</text></svg>`;
   }
 
   function renderOdds(cards) {
