@@ -27,6 +27,12 @@
     <section class='toolbar'>
       <input id='search' type='search' placeholder='Rechercher un jeu' maxlength='100' aria-label='Rechercher un jeu'>
       <select id='genre' aria-label='Filtrer par genre'><option value=''>Tous les genres</option></select>
+      <select id='sort' aria-label='Trier par'>
+        <option value='nom_asc'>Nom A → Z</option>
+        <option value='nom_desc'>Nom Z → A</option>
+        <option value='rarete_desc'>Rareté : la plus rare d'abord</option>
+        <option value='rarete_asc'>Rareté : la plus commune d'abord</option>
+      </select>
     </section>
     <section id='starter' class='panel' hidden>
       <p id='starter-text'>Bienvenue ! Ouvre ton pack de départ pour recevoir 5 jeux.</p>

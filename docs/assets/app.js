@@ -14,8 +14,17 @@ const MESSAGES = {
   forbidden: 'Requête refusée.',
   invalid_json: 'Requête invalide.'
 };
+const RARETES = {
+  commun: 'Commun',
+  peu_commun: 'Peu commun',
+  rare: 'Rare',
+  epique: 'Épique',
+  legendaire: 'Légendaire',
+  mythique: 'Mythique',
+  ethere: 'Éthéré'
+};
 
-const state = { user: null, view: 'catalogue', page: 1, pages: 1, q: '', genre: '' };
+const state = { user: null, view: 'catalogue', page: 1, pages: 1, q: '', genre: '', sort: 'nom_asc' };
 let requestId = 0;
 let searchTimer;
 const $ = (selector) => document.querySelector(selector);
@@ -71,6 +80,10 @@ function makeButton(label, onClick) {
 function renderCard(game) {
   const card = document.createElement('article');
   card.className = 'card';
+  const tier = RARETES[game.rarete] ? game.rarete : 'commun';
+  if (tier !== 'commun') {
+    card.classList.add('r-' + tier);
+  }
   const media = document.createElement('div');
   media.className = 'media';
   if (typeof game.image_url === 'string' && game.image_url.startsWith('https://')) {
@@ -88,7 +101,7 @@ function renderCard(game) {
   const meta = document.createElement('p');
   meta.className = 'meta';
   const year = game.date_sortie ? game.date_sortie.slice(0, 4) : '';
-  meta.textContent = [year, ...(game.genres || [])].filter(Boolean).join(' · ');
+  meta.textContent = [year, RARETES[tier], ...(game.genres || [])].filter(Boolean).join(' · ');
   card.append(media, title, meta);
   const count = game.quantite || game.obtenu || 0;
   if (count > 1) {
@@ -145,7 +158,7 @@ async function loadGames() {
   setStatus('Chargement…');
   try {
     const data = await api(owned ? 'collection' : 'catalogue', {
-      params: { page: state.page, q: state.q, genre: state.genre }
+      params: { page: state.page, q: state.q, genre: state.genre, sort: state.sort }
     });
     if (id !== requestId) {
       return;
@@ -227,6 +240,12 @@ $('#search').addEventListener('input', (event) => {
 
 $('#genre').addEventListener('change', (event) => {
   state.genre = event.target.value;
+  state.page = 1;
+  loadGames();
+});
+
+$('#sort').addEventListener('change', (event) => {
+  state.sort = event.target.value;
   state.page = 1;
   loadGames();
 });

@@ -1,4 +1,5 @@
 .grid .card{cursor:zoom-in}
+.grid > .card[class*=' r-']{border-color:var(--rc)}
 #inspect{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:1rem;padding:1rem;width:min(92vw,24rem)}
 #inspect::backdrop{background:rgba(0,0,0,.78)}
 .in-bar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem}

@@ -107,7 +107,22 @@ function withGenres(array $row): array
     return $row;
 }
 
-function listGames(PDO $pdo, string $q, int $genre, int $page, ?int $owner): array
+function orderSql(string $sort): string
+{
+    $rank = "FIELD(j.rarete, 'commun', 'peu_commun', 'rare', 'epique', 'legendaire', 'mythique', 'ethere')";
+    switch ($sort) {
+        case 'nom_desc':
+            return 'j.titre DESC, j.id';
+        case 'rarete_desc':
+            return "$rank DESC, j.titre, j.id";
+        case 'rarete_asc':
+            return "$rank, j.titre, j.id";
+        default:
+            return 'j.titre, j.id';
+    }
+}
+
+function listGames(PDO $pdo, string $q, int $genre, int $page, ?int $owner, string $sort): array
 {
     $per = 24;
     $join = $owner !== null ? 'JOIN collections c ON c.jeu_id = j.id AND c.joueur_id = ?' : '';
@@ -130,7 +145,8 @@ function listGames(PDO $pdo, string $q, int $genre, int $page, ?int $owner): arr
 
     $offset = ($page - 1) * $per;
     $qty = $owner !== null ? ', c.quantite' : '';
-    $sql = 'SELECT j.id, j.titre, j.date_sortie, j.image_url' . $qty . ', ' . genresSql() . " AS genres FROM jeux j $join $sqlWhere ORDER BY j.titre LIMIT $per OFFSET $offset";
+    $order = orderSql($sort);
+    $sql = 'SELECT j.id, j.titre, j.date_sortie, j.image_url, j.rarete' . $qty . ', ' . genresSql() . " AS genres FROM jeux j $join $sqlWhere ORDER BY $order LIMIT $per OFFSET $offset";
     $st = $pdo->prepare($sql);
     $st->execute($params);
 
@@ -186,7 +202,8 @@ try {
             $q = mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 100);
             $genre = (int) ($_GET['genre'] ?? 0);
             $page = min(100000, max(1, (int) ($_GET['page'] ?? 1)));
-            reply(200, listGames($pdo, $q, $genre, $page, null));
+            $sort = is_string($_GET['sort'] ?? null) ? $_GET['sort'] : '';
+            reply(200, listGames($pdo, $q, $genre, $page, null, $sort));
             break;
 
         case 'me':
@@ -203,7 +220,8 @@ try {
             $q = mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 100);
             $genre = (int) ($_GET['genre'] ?? 0);
             $page = min(100000, max(1, (int) ($_GET['page'] ?? 1)));
-            reply(200, listGames($pdo, $q, $genre, $page, $id));
+            $sort = is_string($_GET['sort'] ?? null) ? $_GET['sort'] : '';
+            reply(200, listGames($pdo, $q, $genre, $page, $id, $sort));
             break;
 
         case 'register':
@@ -288,7 +306,7 @@ try {
 
             $counts = array_count_values($ids);
             $marks = implode(',', array_fill(0, count($counts), '?'));
-            $st = $pdo->prepare('SELECT j.id, j.titre, j.date_sortie, j.image_url, ' . genresSql() . " AS genres FROM jeux j WHERE j.id IN ($marks) ORDER BY j.titre");
+            $st = $pdo->prepare('SELECT j.id, j.titre, j.date_sortie, j.image_url, j.rarete, ' . genresSql() . " AS genres FROM jeux j WHERE j.id IN ($marks) ORDER BY j.titre");
             $st->execute(array_keys($counts));
             $items = array_map(function ($row) use ($counts) {
                 $row = withGenres($row);
