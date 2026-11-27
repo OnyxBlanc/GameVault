@@ -3,6 +3,7 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='theme-color' content='#09090d'>
 <title>GameVault</title>
 <meta name='description' content='Collectionne des jeux vidéo sous forme de cartes.'>
 <link rel='stylesheet' href='./assets/style.css'>
@@ -14,11 +15,14 @@
 </head>
 <body>
 <header class='top'>
-  <h1>GameVault</h1>
+  <a class='brand' href='./' aria-label='GameVault'>
+    <svg viewBox='0 0 32 32' aria-hidden='true'><rect x='1' y='1' width='30' height='30' rx='7' fill='#14141c' stroke='#f5c518' stroke-width='2'/><circle cx='16' cy='16' r='7' fill='none' stroke='#f5c518' stroke-width='2'/><path d='M16 6v4M16 22v4M6 16h4M22 16h4' stroke='#f5c518' stroke-width='2' stroke-linecap='round'/><circle cx='16' cy='16' r='2' fill='#f5c518'/></svg>
+    <h1>GAMEVAULT</h1>
+  </a>
   <nav class='tabs'>
     <button type='button' class='tab active' data-view='catalogue'>Catalogue</button>
     <button type='button' class='tab' data-view='collection'>Ma collection</button>
-    <button type='button' id='tab-booster'>Booster</button>
+    <button type='button' id='tab-booster'>Boosters</button>
   </nav>
   <div id='account' class='account'></div>
 </header>
@@ -36,7 +40,7 @@
     </section>
     <section id='starter' class='panel' hidden>
       <p id='starter-text'>Bienvenue ! Ouvre ton pack de départ pour recevoir 5 jeux.</p>
-      <button type='button' id='starter-btn'>Ouvrir mon pack</button>
+      <button type='button' id='starter-btn' class='primary'>Ouvrir mon pack</button>
       <div id='starter-result' class='grid'></div>
     </section>
     <p id='status' role='status'></p>
@@ -47,11 +51,32 @@
       <button type='button' id='next'>Suivant</button>
     </nav>
   </div>
-  <section id='booster' class='panel' hidden>
-    <h2>Boosters</h2>
-    <p id='b-info'></p>
-    <div id='b-options'></div>
-    <p id='b-timer'></p>
+  <section id='booster' hidden>
+    <div class='b-hero'>
+      <div>
+        <h2>Boosters</h2>
+        <p>Chaque booster contient 5 cartes. Un booster gratuit toutes les 5 minutes, 50 en stock au maximum.</p>
+      </div>
+      <svg viewBox='0 0 210 120' aria-hidden='true'><defs><linearGradient id='hg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#f5c518'/><stop offset='1' stop-color='#8a6d00'/></linearGradient></defs><g transform='translate(105 66)'><rect x='-60' y='-48' width='56' height='86' rx='8' fill='#1c1c2b' stroke='#38bdf8' stroke-width='2' transform='rotate(-18 -32 0)'/><rect x='4' y='-48' width='56' height='86' rx='8' fill='#1c1c2b' stroke='#a855f7' stroke-width='2' transform='rotate(18 32 0)'/><rect x='-28' y='-56' width='56' height='92' rx='8' fill='url(#hg)' stroke='#fff3b0' stroke-width='2'/><circle cx='0' cy='-10' r='14' fill='#17130a'/><path d='M0 -20l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z' fill='#f5c518'/></g></svg>
+    </div>
+    <div id='b-info' class='chips' role='status'></div>
+    <div class='b-layout'>
+      <div class='b-main'>
+        <h2 class='b-title'>Choisis ton booster</h2>
+        <div id='b-options' class='packs'></div>
+      </div>
+      <aside id='b-side' class='side' hidden>
+        <div class='side-head'>
+          <span id='b-side-medal' class='medal'></span>
+          <div><h3 id='b-side-title'></h3><p id='b-side-sub'></p></div>
+        </div>
+        <div id='b-tiles' class='tiles'></div>
+        <h4>Chance par ouverture (au moins une carte)</h4>
+        <ul id='b-odds' class='odds'></ul>
+        <button type='button' id='b-open' class='cta'><strong>Ouvrir</strong><span id='b-open-sub'></span></button>
+        <p id='b-timer'></p>
+      </aside>
+    </div>
     <p id='b-msg' role='status'></p>
     <p id='b-summary' role='status'></p>
     <div id='b-result' class='grid'></div>
@@ -66,7 +91,7 @@
     <div class='actions'>
       <button type='submit' value='login'>Se connecter</button>
       <button type='submit' value='register'>Créer un compte</button>
-      <button type='button' id='auth-cancel'>Annuler</button>
+      <button type='button' id='auth-cancel' class='ghost'>Annuler</button>
     </div>
   </form>
 </dialog>

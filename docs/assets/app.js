@@ -23,11 +23,23 @@ const RARETES = {
   mythique: 'Mythique',
   ethere: 'Éthéré'
 };
+const ICONS = {
+  coin: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v10M9.5 9.5h4a1.8 1.8 0 010 3.5h-3a1.8 1.8 0 000 3.5h4.5'/></svg>",
+  pack: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='5' y='3' width='14' height='18' rx='2'/><path d='M5 7h14M5 17h14M12 10v4'/></svg>",
+  layers: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l9 5-9 5-9-5z'/><path d='M3 13l9 5 9-5'/></svg>"
+};
 
 const state = { user: null, view: 'catalogue', page: 1, pages: 1, q: '', genre: '', sort: 'nom_asc' };
 let requestId = 0;
 let searchTimer;
 const $ = (selector) => document.querySelector(selector);
+
+function icon(name) {
+  const holder = document.createElement('span');
+  holder.className = 'ico';
+  holder.innerHTML = ICONS[name] || '';
+  return holder;
+}
 
 async function api(action, options = {}) {
   const { method = 'GET', params = {}, body } = options;
@@ -117,12 +129,24 @@ function renderAccount() {
   const box = $('#account');
   box.replaceChildren();
   if (!state.user) {
-    box.append(makeButton('Connexion', () => $('#auth').showModal()));
+    const login = makeButton('Connexion', () => $('#auth').showModal());
+    login.className = 'primary';
+    box.append(login);
     return;
   }
-  const info = document.createElement('span');
-  info.textContent = `${state.user.pseudo} · ${state.user.credits} crédits`;
-  box.append(info, makeButton('Déconnexion', logout));
+  const credits = document.createElement('span');
+  credits.className = 'chip';
+  credits.title = 'Crédits';
+  credits.append(icon('coin'), document.createTextNode(Number(state.user.credits).toLocaleString('fr-FR')));
+  const name = document.createElement('span');
+  name.className = 'pseudo';
+  name.textContent = state.user.pseudo;
+  const avatar = document.createElement('span');
+  avatar.className = 'avatar';
+  avatar.textContent = state.user.pseudo.charAt(0).toUpperCase();
+  const out = makeButton('Déconnexion', logout);
+  out.className = 'ghost';
+  box.append(credits, name, avatar, out);
 }
 
 function renderStarter() {
