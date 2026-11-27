@@ -11,11 +11,13 @@
 <link rel='stylesheet' href='./assets/inspect.css?v=3'>
 <link rel='stylesheet' href='./assets/succes.css?v=1'>
 <link rel='stylesheet' href='./assets/admin.css?v=1'>
-<script src='./assets/app.js?v=3' defer></script>
+<link rel='stylesheet' href='./assets/profile.css?v=1'>
+<script src='./assets/app.js?v=4' defer></script>
 <script src='./assets/booster.js?v=5' defer></script>
 <script src='./assets/inspect.js?v=3' defer></script>
 <script src='./assets/succes.js?v=1' defer></script>
 <script src='./assets/admin.js?v=2' defer></script>
+<script src='./assets/profile.js?v=1' defer></script>
 </head>
 <body>
 <header class='top'>
@@ -28,6 +30,7 @@
     <button type='button' class='tab' data-view='collection'>Ma collection</button>
     <button type='button' id='tab-booster'>Boosters</button>
     <button type='button' id='tab-succes'>Succès</button>
+    <button type='button' id='tab-profile'>Profil</button>
     <button type='button' id='tab-admin' hidden>Admin</button>
   </nav>
   <div id='account' class='account'></div>
@@ -89,6 +92,9 @@
     <p id='s-msg' class='s-msg' role='status'></p>
     <div id='s-grid' class='s-grid'></div>
   </section>
+  <section id='profile' hidden>
+    <div id='p-body'></div>
+  </section>
   <section id='admin' hidden>
     <div class='a-head'>
       <h2>Administration</h2>
@@ -105,16 +111,89 @@
 </main>
 <dialog id='auth'>
   <form id='auth-form'>
-    <h2>Connexion</h2>
+    <h2 id='auth-title'>Connexion</h2>
+    <label id='email-wrap' hidden>Email<input id='email' type='email' maxlength='190' autocomplete='email'></label>
     <label>Pseudo<input id='pseudo' required minlength='3' maxlength='32' autocomplete='username'></label>
     <label>Mot de passe<input id='password' type='password' required minlength='8' maxlength='200' autocomplete='current-password'></label>
     <p id='auth-error' class='error' role='alert'></p>
     <div class='actions'>
-      <button type='submit' value='login'>Se connecter</button>
-      <button type='submit' value='register'>Créer un compte</button>
+      <button type='submit' id='auth-submit' class='primary'>Se connecter</button>
+      <button type='button' id='auth-switch' class='ghost'>Pas de compte ? Créer un compte</button>
       <button type='button' id='auth-cancel' class='ghost'>Annuler</button>
     </div>
   </form>
+</dialog>
+<dialog id='p-edit' class='p-dialog'>
+  <form id='pe-form' class='p-form'>
+    <h2>Personnaliser mon profil</h2>
+    <label>Bio (160 car. max)<textarea id='pe-bio' maxlength='160' rows='3'></textarea></label>
+    <label>URL de l'avatar (https://…)<input id='pe-avatar' type='url' maxlength='500'></label>
+    <label>Titre affiché<input id='pe-titre' type='text' maxlength='64' placeholder='Ex: Pilier de la salle'></label>
+    <label>Cadre d'avatar
+      <select id='pe-frame'>
+        <option value='auto'>Automatique</option>
+        <option value='or'>Or</option>
+        <option value='mythique'>Mythique</option>
+        <option value='ethere'>Éthéré</option>
+        <option value='sakura'>Sakura</option>
+        <option value='neon'>Néon</option>
+      </select>
+    </label>
+    <label>Style du pseudo
+      <select id='pe-pstyle'>
+        <option value='default'>Par défaut</option>
+        <option value='sakura'>Sakura</option>
+        <option value='ocean'>Océan</option>
+        <option value='braise'>Braise</option>
+        <option value='or'>Or</option>
+        <option value='prisme'>Dégradé Prisme</option>
+        <option value='aurore'>Dégradé Aurore</option>
+      </select>
+    </label>
+    <label>Thème du profil
+      <select id='pe-theme'>
+        <option value='none'>Aucun</option>
+        <option value='sakura'>Sakura</option>
+        <option value='nuit'>Nuit étoilée</option>
+        <option value='ocean'>Océan</option>
+        <option value='braise'>Braise</option>
+        <option value='jade'>Jade</option>
+        <option value='or'>Or</option>
+      </select>
+    </label>
+    <label>Style de vitrine
+      <select id='pe-sstyle'>
+        <option value='projecteur'>Projecteur (1re carte en grand)</option>
+        <option value='classeur'>Classeur (toutes à plat)</option>
+      </select>
+    </label>
+    <label>Confidentialité du profil
+      <select id='pe-priv-p'>
+        <option value='public'>Public</option>
+        <option value='private'>Privé</option>
+      </select>
+    </label>
+    <label>Confidentialité de la collection
+      <select id='pe-priv-c'>
+        <option value='public'>Public</option>
+        <option value='private'>Privé</option>
+      </select>
+    </label>
+    <p id='pe-err' class='error' role='alert'></p>
+    <div class='actions'>
+      <button type='submit' class='primary'>Enregistrer</button>
+      <button type='button' id='pe-cancel' class='ghost'>Annuler</button>
+    </div>
+  </form>
+</dialog>
+<dialog id='p-showcase-dlg' class='p-dialog'>
+  <h2>Choisir ma vitrine (max 7)</h2>
+  <p id='ps-count' class='meta'></p>
+  <div id='ps-grid' class='p-picker-grid'></div>
+  <div class='actions' style='margin-top:1rem'>
+    <button type='button' id='ps-save' class='primary'>Enregistrer la vitrine</button>
+    <button type='button' id='ps-cancel' class='ghost'>Annuler</button>
+  </div>
 </dialog>
 </body>
 </html>

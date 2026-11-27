@@ -4,6 +4,8 @@ const API = 'api/index.php';
 const MESSAGES = {
   invalid_credentials: 'Pseudo ou mot de passe incorrect.',
   pseudo_taken: 'Ce pseudo est déjà pris.',
+  email_taken: 'Cet email est déjà utilisé.',
+  invalid_email: 'Adresse email invalide.',
   invalid_pseudo: 'Pseudo : 3 à 32 caractères (lettres, chiffres, _ ou -).',
   invalid_password: 'Mot de passe : 8 caractères minimum.',
   unauthenticated: 'Connecte-toi pour continuer.',
@@ -291,16 +293,29 @@ $('#next').addEventListener('click', () => {
 $('#starter-btn').addEventListener('click', openStarter);
 $('#auth-cancel').addEventListener('click', () => $('#auth').close());
 
+let authMode = 'login';
+function setAuthMode(mode) {
+  authMode = mode;
+  $('#auth-title').textContent = mode === 'register' ? 'Créer un compte' : 'Connexion';
+  $('#email-wrap').hidden = mode !== 'register';
+  $('#email').required = mode === 'register';
+  $('#auth-submit').textContent = mode === 'register' ? 'Créer un compte' : 'Se connecter';
+  $('#auth-switch').textContent = mode === 'register' ? 'Déjà un compte ? Connexion' : 'Pas de compte ? Créer un compte';
+  $('#auth-error').textContent = '';
+}
+$('#auth-switch').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'register' : 'login'));
+setAuthMode('login');
+
 $('#auth-form').addEventListener('submit', async (event) => {
   event.preventDefault();
-  const action = event.submitter && event.submitter.value === 'register' ? 'register' : 'login';
   const error = $('#auth-error');
   error.textContent = '';
   try {
-    const data = await api(action, {
-      method: 'POST',
-      body: { pseudo: $('#pseudo').value.trim(), password: $('#password').value }
-    });
+    const payload = { pseudo: $('#pseudo').value.trim(), password: $('#password').value };
+    if (authMode === 'register') {
+      payload.email = $('#email').value.trim();
+    }
+    const data = await api(authMode, { method: 'POST', body: payload });
     state.user = data.user;
     $('#password').value = '';
     $('#auth').close();

@@ -230,8 +230,12 @@ try {
 
         case 'register':
             $d = body();
+            $email = is_string($d['email'] ?? null) ? mb_strtolower(trim($d['email'])) : '';
             $pseudo = is_string($d['pseudo'] ?? null) ? trim($d['pseudo']) : '';
             $password = is_string($d['password'] ?? null) ? $d['password'] : '';
+            if ($email === '' || strlen($email) > 190 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                reply(422, ['error' => 'invalid_email']);
+            }
             if (!preg_match('/^[A-Za-z0-9_-]{3,32}$/', $pseudo)) {
                 reply(422, ['error' => 'invalid_pseudo']);
             }
@@ -239,11 +243,12 @@ try {
                 reply(422, ['error' => 'invalid_password']);
             }
             try {
-                $st = $pdo->prepare('INSERT INTO joueurs (pseudo, password_hash) VALUES (?, ?)');
-                $st->execute([$pseudo, password_hash($password, PASSWORD_DEFAULT)]);
+                $st = $pdo->prepare('INSERT INTO joueurs (pseudo, email, password_hash) VALUES (?, ?, ?)');
+                $st->execute([$pseudo, $email, password_hash($password, PASSWORD_DEFAULT)]);
             } catch (PDOException $e) {
                 if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
-                    reply(409, ['error' => 'pseudo_taken']);
+                    $msg = $e->getMessage();
+                    reply(409, ['error' => str_contains($msg, 'email') ? 'email_taken' : 'pseudo_taken']);
                 }
                 throw $e;
             }
