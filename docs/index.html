@@ -6,12 +6,12 @@
 <meta name='theme-color' content='#09090d'>
 <title>GameVault</title>
 <meta name='description' content='Collectionne des jeux vidéo sous forme de cartes.'>
-<link rel='stylesheet' href='./assets/style.css?v=2'>
-<link rel='stylesheet' href='./assets/booster.css?v=2'>
-<link rel='stylesheet' href='./assets/inspect.css?v=2'>
-<script src='./assets/app.js?v=2' defer></script>
-<script src='./assets/booster.js?v=2' defer></script>
-<script src='./assets/inspect.js?v=2' defer></script>
+<link rel='stylesheet' href='./assets/style.css?v=3'>
+<link rel='stylesheet' href='./assets/booster.css?v=3'>
+<link rel='stylesheet' href='./assets/inspect.css?v=3'>
+<script src='./assets/app.js?v=3' defer></script>
+<script src='./assets/booster.js?v=3' defer></script>
+<script src='./assets/inspect.js?v=3' defer></script>
 </head>
 <body>
 <header class='top'>
@@ -52,30 +52,21 @@
     </nav>
   </div>
   <section id='booster' hidden>
-    <div class='b-hero'>
-      <div>
-        <h2>Boosters</h2>
-        <p>Chaque booster contient 5 cartes. Un booster gratuit toutes les 5 minutes, 50 en stock au maximum.</p>
+    <div id='b-stage' class='b-stage'>
+      <div id='b-pack' class='b-pack' role='button' tabindex='0' aria-label='Booster GameVault'>
+        <div id='b-pack-art' class='b-pack-art'></div>
+        <div id='b-tear' class='b-tear' aria-hidden='true'><span id='b-tear-line' class='b-tear-line'></span></div>
       </div>
-      <svg width='210' height='120' viewBox='0 0 210 120' aria-hidden='true'><defs><linearGradient id='hg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#f5c518'/><stop offset='1' stop-color='#8a6d00'/></linearGradient></defs><g transform='translate(105 66)'><rect x='-60' y='-48' width='56' height='86' rx='8' fill='#1c1c2b' stroke='#38bdf8' stroke-width='2' transform='rotate(-18 -32 0)'/><rect x='4' y='-48' width='56' height='86' rx='8' fill='#1c1c2b' stroke='#a855f7' stroke-width='2' transform='rotate(18 32 0)'/><rect x='-28' y='-56' width='56' height='92' rx='8' fill='url(#hg)' stroke='#fff3b0' stroke-width='2'/><circle cx='0' cy='-10' r='14' fill='#17130a'/><path d='M0 -20l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z' fill='#f5c518'/></g></svg>
-    </div>
-    <div id='b-info' class='chips' role='status'></div>
-    <div class='b-layout'>
-      <div class='b-main'>
-        <h2 class='b-title'>Choisis ton booster</h2>
-        <div id='b-options' class='packs'></div>
-      </div>
-      <aside id='b-side' class='side' hidden>
-        <div class='side-head'>
-          <span id='b-side-medal' class='medal'></span>
-          <div><h3 id='b-side-title'></h3><p id='b-side-sub'></p></div>
-        </div>
-        <div id='b-tiles' class='tiles'></div>
-        <h4>Chance par ouverture (au moins une carte)</h4>
+      <div class='b-shadow' aria-hidden='true'></div>
+      <p id='b-hint' class='b-hint'>Glisse le long du haut pour déchirer</p>
+      <div id='b-options' class='b-pills' role='group' aria-label='Nombre de boosters'></div>
+      <button type='button' id='b-open' class='cta'><strong>Ouvrir</strong><span class='sep' aria-hidden='true'>|</span><span id='b-open-sub'></span></button>
+      <p id='b-timer' class='b-timer'></p>
+      <p id='b-info' class='b-meta' role='status'></p>
+      <details id='b-odds-box' class='b-odds-box'>
+        <summary>Probabilités pour cette ouverture</summary>
         <ul id='b-odds' class='odds'></ul>
-        <button type='button' id='b-open' class='cta'><strong>Ouvrir</strong><span id='b-open-sub'></span></button>
-        <p id='b-timer'></p>
-      </aside>
+      </details>
     </div>
     <p id='b-msg' role='status'></p>
     <p id='b-summary' role='status'></p>

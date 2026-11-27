@@ -1,45 +1,37 @@
 [hidden]{display:none!important}
-.b-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;padding:1.5rem 2rem;background:linear-gradient(120deg,#1a1608,#0d0d13 62%);margin-bottom:1rem}
-.b-hero h2{margin:0 0 .3rem;font-size:1.9rem}
-.b-hero p{margin:0;color:var(--muted);max-width:32rem}
-.b-hero svg{width:210px;height:120px;flex:none}
-.chips{display:flex;flex-wrap:wrap;gap:.6rem;margin:0 0 1.75rem;color:var(--muted)}
-.b-layout{display:grid;grid-template-columns:minmax(0,1fr) 21rem;gap:2rem;align-items:start}
-.b-title{font-size:1.7rem;margin:0 0 1rem}
-.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:1rem}
-.pack{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.6rem .4rem;background:none;border:2px solid transparent;border-radius:14px;text-align:center}
-.pack .art{display:block;width:100%}
-.pack svg{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55));transition:transform .2s}
-.pack:hover:not(:disabled) svg{transform:translateY(-5px) rotate(-1.5deg)}
-.pack[aria-pressed=true]{border-color:var(--accent);background:rgba(245,197,24,.06)}
-.pack strong{font-size:.95rem}
-.pack small{font-size:.78rem;font-weight:600;color:var(--muted)}
-.pack.free small{color:var(--danger)}
-.side{position:sticky;top:5rem;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.2rem}
-.side-head{display:flex;gap:.8rem;align-items:center;margin-bottom:1rem}
-.side-head h3{margin:0;font-size:1.25rem}
-.side-head p{margin:0;color:var(--muted);font-size:.9rem}
-.medal{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);font-weight:800;background:var(--bg2)}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-.tile{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;background:var(--bg2)}
-.tile b{display:block;font-size:1.3rem;line-height:1.3;font-variant-numeric:tabular-nums}
-.tile span{color:var(--muted);font-size:.75rem}
-.tile.gold{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:rgba(245,197,24,.08)}
-.tile.gold b{color:var(--accent)}
-.side h4{margin:1.2rem 0 .6rem;font-size:.7rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-.odds{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
-.odds li{display:grid;grid-template-columns:.55rem 6.2rem 1fr 3.8rem;gap:.55rem;align-items:center;font-size:.85rem}
-.odds i{width:.5rem;height:.5rem;border-radius:50%;background:var(--rc,#9ca3af)}
-.odds .bar{height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
+.b-stage{position:relative;display:flex;flex-direction:column;align-items:center;padding:2.5rem 1rem 2rem;border-radius:20px;background:radial-gradient(520px 360px at 50% 34%,rgba(245,158,11,.24),rgba(9,9,13,0) 70%),linear-gradient(180deg,#09090d,#060609);border:1px solid #1b1b24;overflow:hidden}
+.b-pack{position:relative;width:min(240px,68vw);cursor:grab;user-select:none;touch-action:none;transition:transform .25s ease}
+.b-pack:hover{transform:translateY(-4px)}
+.b-pack.tearing{cursor:grabbing;transform:scale(1.02)}
+.b-pack.rip{animation:rip .4s ease-out}
+.b-pack-art svg{display:block;width:100%;height:auto;filter:drop-shadow(0 22px 34px rgba(0,0,0,.75))}
+.b-tear{position:absolute;left:5%;right:5%;top:12%;height:14%;pointer-events:none}
+.b-tear-line{display:block;height:3px;width:0;margin-top:8px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,.15),#fff7d6 80%,#fff);box-shadow:0 0 12px #fff,0 0 22px #f59e0b}
+.b-shadow{width:140px;height:14px;margin-top:.5rem;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.75),transparent)}
+.b-hint{margin:1.4rem 0 .85rem;color:var(--muted);font-size:.86rem}
+.b-pills{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:.25rem;padding:.3rem;border-radius:999px;background:#14141d;border:1px solid var(--line);margin-bottom:1.1rem}
+.b-pill{background:transparent;border:0;border-radius:999px;padding:.38rem .85rem;color:var(--muted);font-size:.86rem;font-weight:700;font-variant-numeric:tabular-nums}
+.b-pill:hover:not(:disabled){color:var(--text)}
+.b-pill[aria-pressed=true]{background:#f59e0b;color:#17130a}
+.b-pill.best:not([aria-pressed=true]){color:#f5c518}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:.65rem;min-width:min(320px,90vw);padding:.9rem 1.8rem;border-radius:999px;border:0;background:linear-gradient(180deg,#fbbf24,#f59e0b);color:#17130a;font-size:1.05rem;font-weight:800;box-shadow:0 8px 26px rgba(245,158,11,.28)}
+.cta:hover:not(:disabled){background:linear-gradient(180deg,#fcd34d,#fbbf24);transform:translateY(-1px)}
+.cta .sep{opacity:.35;font-weight:400}
+.cta span:last-child{font-size:.88rem;font-weight:600;opacity:.88}
+.b-timer{margin:.9rem 0 0;color:var(--muted);font-size:.84rem;font-variant-numeric:tabular-nums;min-height:1.3rem}
+.b-meta{margin:.3rem 0 0;color:#6b6b80;font-size:.8rem}
+.b-odds-box{margin-top:1.1rem;width:min(360px,100%);text-align:center}
+.b-odds-box summary{cursor:pointer;color:var(--muted);font-size:.8rem;list-style:none}
+.b-odds-box summary:hover{color:var(--text)}
+.odds{list-style:none;margin:.75rem 0 0;padding:.85rem 1rem;border-radius:12px;background:rgba(19,19,27,.85);border:1px solid var(--line);display:grid;gap:.45rem;text-align:left}
+.odds li{display:grid;grid-template-columns:.5rem 6rem 1fr 3.8rem;gap:.5rem;align-items:center;font-size:.82rem}
+.odds i{width:.48rem;height:.48rem;border-radius:50%;background:var(--rc,#9ca3af)}
+.odds .bar{height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
 .odds .bar b{display:block;height:100%;min-width:2px;border-radius:3px;background:var(--rc,#9ca3af)}
-.odds .pct{text-align:right;font-variant-numeric:tabular-nums}
-.cta{display:flex;width:100%;justify-content:center;align-items:baseline;gap:.8rem;margin-top:1.2rem;padding:.9rem 1rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);border:0;font-weight:800;font-size:1.1rem}
-.cta:hover:not(:disabled){background:#ffd83d}
-.cta span{font-size:.8rem;font-weight:600;opacity:.8}
-#b-timer{margin:.8rem 0 0;color:var(--muted);font-size:.85rem;text-align:center}
-#b-msg{color:#fca5a5;min-height:1.5rem;margin:1rem 0 0}
-#b-summary{margin:.5rem 0}
-#b-reveal{margin-top:.75rem}
+.odds .pct{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+#b-msg{color:#fca5a5;min-height:1.5rem;margin:1rem 0 0;text-align:center}
+#b-summary{margin:.5rem 0;text-align:center;color:var(--muted)}
+#b-reveal{display:block;margin:.75rem auto 0}
 #b-result{margin-top:1rem}
 .flip{--rc:#9ca3af;--holo:0;position:relative;aspect-ratio:11/17;perspective:900px;cursor:pointer;outline:none;animation:deal .5s ease-out both}
 .flip:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
@@ -64,9 +56,9 @@
 .flip.open.r-legendaire .holo,.flip.open.r-mythique .holo,.flip.open.r-ethere .holo{opacity:.4;animation:sheen 4s linear infinite}
 .flip.open.r-legendaire:hover .holo,.flip.open.r-mythique:hover .holo,.flip.open.r-ethere:hover .holo{animation:none;opacity:var(--holo)}
 .flip.open.r-ethere .front{animation:aura 2.4s ease-in-out infinite}
+@keyframes rip{0%{transform:scale(1.03)}40%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1)}}
 @keyframes deal{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes pulse{50%{box-shadow:0 0 34px var(--rc),inset 0 0 26px color-mix(in srgb,var(--rc) 60%,transparent)}}
 @keyframes sheen{from{background-position:0% 0%}to{background-position:100% 100%}}
 @keyframes aura{0%,100%{box-shadow:0 0 0 2px #22d3ee,0 0 28px #22d3ee}33%{box-shadow:0 0 0 2px #a78bfa,0 0 34px #a78bfa}66%{box-shadow:0 0 0 2px #f472b6,0 0 34px #f472b6}}
-@media (max-width:900px){.b-layout{grid-template-columns:1fr}.side{position:static}.b-hero svg{display:none}.b-hero{padding:1.2rem}}
-@media (prefers-reduced-motion:reduce){.flip,.flip-inner,.holo,.front,.back{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){.flip,.flip-inner,.holo,.front,.back,.b-pack{animation:none!important;transition:none!important}}

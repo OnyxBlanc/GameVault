@@ -22,7 +22,7 @@
   };
   const ODDS = { ethere: 0.0001, mythique: 0.0009, legendaire: 0.01, epique: 0.04, rare: 0.10, peu_commun: 0.25 };
   const SHOWN = ['peu_commun', 'rare', 'epique', 'legendaire', 'mythique', 'ethere'];
-  const VAULT = "<svg viewBox='0 0 32 32' aria-hidden='true'><circle cx='16' cy='16' r='9' fill='none' stroke='#f5c518' stroke-width='2'/><path d='M16 3v6M16 23v6M3 16h6M23 16h6' stroke='#f5c518' stroke-width='2' stroke-linecap='round'/><circle cx='16' cy='16' r='2.5' fill='#f5c518'/></svg>";
+  const VAULT = "<svg width='64' height='64' viewBox='0 0 32 32' aria-hidden='true'><path d='M16 5l9 5v12l-9 5-9-5V10z' fill='none' stroke='#f5c518' stroke-width='2' stroke-linejoin='round'/><path d='M16 11l5 5-5 5-5-5z' fill='#f5c518'/></svg>";
   const byId = (id) => document.getElementById(id);
   let info = null;
   let busy = false;
@@ -31,6 +31,7 @@
   let revealTimers = [];
   let lastKey = '';
   let selected = 1;
+  let dragStart = null;
 
   async function call(action, method, body) {
     const init = { method, credentials: 'same-origin', headers: {} };
@@ -68,10 +69,7 @@
   }
 
   function optionList() {
-    const set = new Set([1]);
-    for (let n = 5; n <= info.max_open; n += 5) {
-      set.add(n);
-    }
+    const set = new Set([1, 5, 10, 20, 50].filter((n) => n <= info.max_open));
     if (info.free > 0) {
       set.add(Math.min(info.free, info.max_open));
     }
@@ -84,71 +82,36 @@
     const cost = paid * info.price;
     let text;
     if (paid === 0) {
-      text = 'Gratuit';
+      text = `Gratuit · ${info.free} restant${info.free > 1 ? 's' : ''}`;
     } else if (freeUsed === 0) {
-      text = cost + ' crédits';
+      text = cost.toLocaleString('fr-FR') + ' crédits';
     } else {
-      text = `${plural(freeUsed, 'gratuit')} + ${plural(paid, 'payant')} (${cost} crédits)`;
+      text = `${freeUsed} gratuit${freeUsed > 1 ? 's' : ''} + ${cost.toLocaleString('fr-FR')} crédits`;
     }
     return { text, cost, paid };
   }
 
-  function packSvg(n, gold, cards) {
-    const hue = gold ? 46 : (n * 47 + 190) % 360;
-    const light = `hsl(${hue} 78% 60%)`;
-    const dark = `hsl(${hue} 55% 18%)`;
-    const id = 'pk' + n;
-    const label = n > 1 ? 'BOOSTERS' : 'BOOSTER';
-    const ribbon = gold
-      ? "<g transform='rotate(-6 80 157)'><rect x='-8' y='146' width='176' height='22' fill='#f5c518'/><text x='80' y='161' text-anchor='middle' font-size='11' font-weight='800' letter-spacing='3' fill='#17130a'>DORÉ</text></g>"
-      : '';
-    return `<svg viewBox='0 0 160 220' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='${n} ${label.toLowerCase()}'>`
-      + `<defs><linearGradient id='${id}a' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${light}'/><stop offset='1' stop-color='${dark}'/></linearGradient>`
-      + `<pattern id='${id}b' width='5' height='8' patternUnits='userSpaceOnUse'><rect width='2' height='8' fill='#000' opacity='.28'/></pattern>`
-      + `<linearGradient id='${id}c' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#fff' stop-opacity='.28'/><stop offset='.35' stop-color='#fff' stop-opacity='0'/></linearGradient></defs>`
-      + `<rect x='8' y='4' width='144' height='212' rx='5' fill='url(#${id}a)' stroke='${light}' stroke-opacity='.6'/>`
-      + `<rect x='8' y='4' width='144' height='212' rx='5' fill='url(#${id}c)'/>`
-      + `<rect x='8' y='4' width='144' height='14' fill='url(#${id}b)'/><rect x='8' y='202' width='144' height='14' fill='url(#${id}b)'/>`
-      + "<text x='80' y='40' text-anchor='middle' font-size='11' font-weight='800' letter-spacing='3' fill='#fff' fill-opacity='.9'>GAMEVAULT</text>"
-      + "<circle cx='80' cy='98' r='42' fill='#0b0b10' stroke='#fff' stroke-opacity='.8' stroke-width='3'/>"
-      + `<circle cx='80' cy='98' r='35' fill='none' stroke='${light}' stroke-width='1.5' stroke-dasharray='2 4'/>`
-      + `<text x='80' y='${n >= 10 ? 111 : 113}' text-anchor='middle' font-size='${n >= 10 ? 34 : 40}' font-weight='800' fill='${light}'>${n}</text>`
-      + ribbon
-      + `<text x='80' y='184' text-anchor='middle' font-size='11' font-weight='800' letter-spacing='2' fill='#fff'>${label}</text>`
-      + `<text x='80' y='196' text-anchor='middle' font-size='8' font-weight='600' letter-spacing='1' fill='#fff' fill-opacity='.75'>${cards} CARTES</text></svg>`;
+  function packSvg(n, cards) {
+    return `<svg width='240' height='340' viewBox='0 0 240 340' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>`
+      + "<defs><linearGradient id='pk-bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e7a948'/><stop offset='.48' stop-color='#9a5d17'/><stop offset='1' stop-color='#4d2b07'/></linearGradient>"
+      + "<radialGradient id='pk-glow' cx='50%' cy='46%' r='56%'><stop offset='0' stop-color='#ffd77a' stop-opacity='.55'/><stop offset='1' stop-color='#000' stop-opacity='0'/></radialGradient>"
+      + "<pattern id='pk-crimp' width='6' height='14' patternUnits='userSpaceOnUse'><rect width='3' height='14' fill='#000' opacity='.28'/></pattern></defs>"
+      + "<rect x='8' y='4' width='224' height='332' rx='10' fill='url(#pk-bg)' stroke='#f7cf77' stroke-opacity='.55' stroke-width='1.5'/>"
+      + "<rect x='8' y='4' width='224' height='332' rx='10' fill='url(#pk-glow)'/>"
+      + "<rect x='8' y='4' width='224' height='18' fill='url(#pk-crimp)'/><rect x='8' y='318' width='224' height='18' fill='url(#pk-crimp)'/>"
+      + "<path d='M8 54 L24 48 L40 54 L56 48 L72 54 L88 48 L104 54 L120 48 L136 54 L152 48 L168 54 L184 48 L200 54 L216 48 L232 54' fill='none' stroke='#17130a' stroke-opacity='.55' stroke-width='2'/>"
+      + "<text x='120' y='38' text-anchor='middle' font-size='12' font-weight='800' letter-spacing='4' fill='#17130a' fill-opacity='.82'>GAMEVAULT</text>"
+      + "<circle cx='120' cy='154' r='60' fill='#0e0e14' stroke='#f7cf77' stroke-width='3'/>"
+      + "<circle cx='120' cy='154' r='52' fill='none' stroke='#f59e0b' stroke-opacity='.55' stroke-width='1.5'/>"
+      + "<path d='M120 116l30 17v34l-30 17-30-17v-34z' fill='none' stroke='#fbbf24' stroke-width='4' stroke-linejoin='round'/>"
+      + "<path d='M120 138l16 16-16 16-16-16z' fill='#fbbf24'/>"
+      + `<text x='120' y='246' text-anchor='middle' font-size='21' font-weight='800' fill='#17130a'>${n > 1 ? '×' + n + ' Boosters' : 'Booster'}</text>`
+      + "<text x='120' y='266' text-anchor='middle' font-size='12' font-weight='600' fill='#17130a' fill-opacity='.78'>Catalogue complet</text>"
+      + "<rect x='78' y='282' width='84' height='24' rx='12' fill='#17130a' fill-opacity='.78'/>"
+      + `<text x='120' y='298' text-anchor='middle' font-size='11' font-weight='700' fill='#f4f4f8'>${plural(cards, 'carte')}</text></svg>`;
   }
 
-  function chip(name, text) {
-    const node = document.createElement('span');
-    node.className = 'chip';
-    node.append(icon(name), document.createTextNode(text));
-    return node;
-  }
-
-  function tile(value, label, gold) {
-    const node = document.createElement('div');
-    node.className = 'tile' + (gold ? ' gold' : '');
-    const big = document.createElement('b');
-    big.textContent = value;
-    const small = document.createElement('span');
-    small.textContent = label;
-    node.append(big, small);
-    return node;
-  }
-
-  function renderSide() {
-    const n = selected;
-    const detail = describe(n);
-    const cards = n * info.count;
-    byId('b-side-medal').textContent = '×' + n;
-    byId('b-side-title').textContent = plural(n, 'booster');
-    byId('b-side-sub').textContent = plural(cards, 'carte');
-    byId('b-tiles').replaceChildren(
-      tile(String(info.count), 'cartes par booster'),
-      tile(`${info.free}/${info.max_free}`, 'boosters gratuits'),
-      tile(info.credits.toLocaleString('fr-FR'), 'crédits'),
-      tile(detail.cost === 0 ? 'Gratuit' : String(detail.cost), detail.cost === 0 ? 'rien à payer' : 'crédits à payer', true)
-    );
+  function renderOdds(cards) {
     byId('b-odds').replaceChildren(...SHOWN.map((tier) => {
       const pct = (1 - Math.pow(1 - ODDS[tier], cards)) * 100;
       const row = document.createElement('li');
@@ -167,31 +130,24 @@
       row.append(dot, name, bar, value);
       return row;
     }));
-    const button = byId('b-open');
-    button.disabled = busy || detail.cost > info.credits;
-    byId('b-open-sub').textContent = detail.text;
   }
 
-  function renderOptions() {
+  function renderControls() {
     const list = optionList();
     if (!list.includes(selected)) {
       selected = 1;
     }
+    const detail = describe(selected);
+    const cards = selected * info.count;
+    byId('b-pack-art').innerHTML = packSvg(selected, cards);
     byId('b-options').replaceChildren(...list.map((n) => {
-      const detail = describe(n);
+      const d = describe(n);
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'pack' + (detail.paid === 0 ? ' free' : '');
+      button.className = 'b-pill' + (n > 1 && n === info.free ? ' best' : '');
       button.setAttribute('aria-pressed', n === selected ? 'true' : 'false');
-      button.disabled = busy || detail.cost > info.credits;
-      const art = document.createElement('span');
-      art.className = 'art';
-      art.innerHTML = packSvg(n, n > 1 && n === info.free, n * info.count);
-      const title = document.createElement('strong');
-      title.textContent = plural(n, 'booster');
-      const sub = document.createElement('small');
-      sub.textContent = detail.text;
-      button.append(art, title, sub);
+      button.textContent = '×' + n;
+      button.disabled = busy || d.cost > info.credits;
       button.addEventListener('click', () => {
         selected = n;
         lastKey = '';
@@ -199,32 +155,29 @@
       });
       return button;
     }));
-    renderSide();
+    const openBtn = byId('b-open');
+    openBtn.disabled = busy || detail.cost > info.credits;
+    byId('b-open-sub').textContent = detail.text;
+    byId('b-info').textContent = `${info.free}/${info.max_free} gratuits · ${info.credits.toLocaleString('fr-FR')} crédits · ${info.price} crédits/booster payant`;
+    renderOdds(cards);
   }
 
   function render() {
-    const chips = byId('b-info');
-    const side = byId('b-side');
+    const stage = byId('b-stage');
     if (!state.user || !info) {
-      chips.replaceChildren(document.createTextNode(!state.user ? 'Connecte-toi pour ouvrir des boosters.' : 'Chargement…'));
-      byId('b-options').replaceChildren();
-      side.hidden = true;
+      stage.hidden = true;
+      byId('b-msg').textContent = !state.user ? 'Connecte-toi pour ouvrir des boosters.' : 'Chargement…';
       lastKey = '';
       return;
     }
-    side.hidden = false;
+    stage.hidden = false;
     byId('b-timer').textContent = info.free >= info.max_free
-      ? 'Stock plein : ouvre des boosters pour relancer la régénération.'
-      : 'Prochain gratuit dans ' + formatTime(info.next_in);
+      ? 'Stock plein (50/50)'
+      : 'Prochain booster gratuit dans ' + formatTime(info.next_in);
     const key = `${info.free}|${info.credits}|${busy}|${selected}`;
     if (key !== lastKey) {
       lastKey = key;
-      chips.replaceChildren(
-        chip('pack', `${info.free}/${info.max_free} boosters gratuits`),
-        chip('coin', `${info.credits.toLocaleString('fr-FR')} crédits`),
-        chip('layers', `${info.count} cartes par booster · ${info.price} crédits l'unité`)
-      );
-      renderOptions();
+      renderControls();
     }
   }
 
@@ -348,6 +301,25 @@
     render();
   }
 
+  function triggerOpen() {
+    if (!info || busy) {
+      return;
+    }
+    const detail = describe(selected);
+    if (detail.cost > info.credits) {
+      byId('b-msg').textContent = MSG.insufficient_credits;
+      return;
+    }
+    if (detail.cost > 0 && !window.confirm(`Dépenser ${detail.cost} crédits pour ${plural(detail.paid, 'booster')} payant${detail.paid > 1 ? 's' : ''} ?`)) {
+      return;
+    }
+    const pack = byId('b-pack');
+    pack.classList.remove('rip');
+    void pack.offsetWidth;
+    pack.classList.add('rip');
+    open(selected);
+  }
+
   async function open(count) {
     if (busy) {
       return;
@@ -426,6 +398,44 @@
     byId('tab-booster').classList.remove('active');
   }
 
+  const packEl = byId('b-pack');
+  const tearLine = byId('b-tear-line');
+  packEl.addEventListener('pointerdown', (event) => {
+    if (!info || busy) {
+      return;
+    }
+    dragStart = event.clientX;
+    packEl.classList.add('tearing');
+    packEl.setPointerCapture(event.pointerId);
+  });
+  packEl.addEventListener('pointermove', (event) => {
+    if (dragStart === null) {
+      return;
+    }
+    const width = packEl.getBoundingClientRect().width || 240;
+    const progress = Math.min(1, Math.abs(event.clientX - dragStart) / (width * 0.6));
+    tearLine.style.width = (progress * 100).toFixed(0) + '%';
+    if (progress >= 1) {
+      dragStart = null;
+      packEl.classList.remove('tearing');
+      tearLine.style.width = '0';
+      triggerOpen();
+    }
+  });
+  const resetDrag = () => {
+    dragStart = null;
+    packEl.classList.remove('tearing');
+    tearLine.style.width = '0';
+  };
+  packEl.addEventListener('pointerup', resetDrag);
+  packEl.addEventListener('pointercancel', resetDrag);
+  packEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      triggerOpen();
+    }
+  });
+
   const revealButton = document.createElement('button');
   revealButton.type = 'button';
   revealButton.id = 'b-reveal';
@@ -435,16 +445,7 @@
   byId('b-result').before(revealButton);
   revealButton.addEventListener('click', revealAll);
 
-  byId('b-open').addEventListener('click', () => {
-    if (!info || busy) {
-      return;
-    }
-    const detail = describe(selected);
-    if (detail.cost > 0 && !window.confirm(`Dépenser ${detail.cost} crédits pour ${plural(detail.paid, 'booster')} payant${detail.paid > 1 ? 's' : ''} ?`)) {
-      return;
-    }
-    open(selected);
-  });
+  byId('b-open').addEventListener('click', triggerOpen);
 
   byId('b-result').addEventListener('pointermove', (event) => {
     const face = event.target.closest('.flip.open .front');
