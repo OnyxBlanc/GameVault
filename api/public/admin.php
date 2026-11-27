@@ -84,8 +84,18 @@ $pdo = null;
 try {
     $action = isset($_GET['a']) && is_string($_GET['a']) ? $_GET['a'] : 'overview';
     $method = $_SERVER['REQUEST_METHOD'];
-    $reads = ['overview', 'players', 'games'];
-    $writes = ['player_update', 'player_moderate', 'player_clear_collection', 'player_clear_succes', 'game_rarity', 'game_delete', 'settings_save'];
+    $reads = ['overview', 'players', 'games', 'player_collection', 'player_succes'];
+    $writes = [
+        'player_update',
+        'player_moderate',
+        'player_clear_collection',
+        'player_card_set',
+        'player_clear_succes',
+        'player_succes_set',
+        'game_rarity',
+        'game_delete',
+        'settings_save',
+    ];
 
     if (in_array($action, $reads, true)) {
         if ($method !== 'GET') {
@@ -162,6 +172,95 @@ try {
                 ];
             }, $st->fetchAll());
             reply(200, ['items' => $items]);
+            break;
+
+        case 'player_collection':
+            $id = (int) ($_GET['id'] ?? 0);
+            if ($id < 1) {
+                reply(422, ['error' => 'invalid_player']);
+            }
+            $q = mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 100);
+            $where = $q !== '' ? 'AND j.titre LIKE ?' : '';
+            $params = $q !== '' ? [$id, '%' . addcslashes($q, '%_\\') . '%'] : [$id];
+            $st = $pdo->prepare(
+                "SELECT j.id AS jeu_id, j.titre, j.rarete, c.quantite, c.ajoute_le
+                 FROM collections c
+                 JOIN jeux j ON j.id = c.jeu_id
+                 WHERE c.joueur_id = ? $where
+                 ORDER BY FIELD(j.rarete, 'ethere', 'mythique', 'legendaire', 'epique', 'rare', 'peu_commun', 'commun'), j.titre
+                 LIMIT 100"
+            );
+            $st->execute($params);
+            $items = array_map(fn($r) => [
+                'jeu_id' => (int) $r['jeu_id'],
+                'titre' => $r['titre'],
+                'rarete' => $r['rarete'],
+                'quantite' => (int) $r['quantite'],
+                'ajoute_le' => $r['ajoute_le'],
+            ], $st->fetchAll());
+            reply(200, ['items' => $items]);
+            break;
+
+        case 'player_card_set':
+            $d = body();
+            $id = (int) ($d['id'] ?? 0);
+            $jeuId = (int) ($d['jeu_id'] ?? 0);
+            $qty = (int) ($d['quantite'] ?? 0);
+            if ($id < 1 || $jeuId < 1) {
+                reply(422, ['error' => 'invalid_params']);
+            }
+            if ($qty <= 0) {
+                $pdo->prepare('DELETE FROM collections WHERE joueur_id = ? AND jeu_id = ?')->execute([$id, $jeuId]);
+                logAction($pdo, $adminId, 'card_remove', "joueur#$id", "jeu#$jeuId");
+            } else {
+                $stCheck = $pdo->prepare('SELECT id FROM jeux WHERE id = ?');
+                $stCheck->execute([$jeuId]);
+                if (!$stCheck->fetchColumn()) {
+                    reply(404, ['error' => 'game_not_found']);
+                }
+                $pdo->prepare('INSERT INTO collections (joueur_id, jeu_id, quantite) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantite = ?')
+                    ->execute([$id, $jeuId, $qty, $qty]);
+                logAction($pdo, $adminId, 'card_set', "joueur#$id", "jeu#$jeuId ×$qty");
+            }
+            reply(200, ['ok' => true]);
+            break;
+
+        case 'player_succes':
+            $id = (int) ($_GET['id'] ?? 0);
+            if ($id < 1) {
+                reply(422, ['error' => 'invalid_player']);
+            }
+            $st = $pdo->prepare('SELECT code, debloque_le, recompense_reclamee FROM joueur_succes WHERE joueur_id = ? ORDER BY debloque_le DESC');
+            $st->execute([$id]);
+            $items = array_map(fn($r) => [
+                'code' => $r['code'],
+                'debloque_le' => $r['debloque_le'],
+                'recompense_reclamee' => (int) $r['recompense_reclamee'],
+            ], $st->fetchAll());
+            reply(200, ['items' => $items]);
+            break;
+
+        case 'player_succes_set':
+            $d = body();
+            $id = (int) ($d['id'] ?? 0);
+            $code = is_string($d['code'] ?? null) ? trim($d['code']) : '';
+            $mode = is_string($d['mode'] ?? null) ? $d['mode'] : '';
+            if ($id < 1 || $code === '' || strlen($code) > 48) {
+                reply(422, ['error' => 'invalid_params']);
+            }
+            if ($mode === 'add') {
+                $pdo->prepare('INSERT IGNORE INTO joueur_succes (joueur_id, code) VALUES (?, ?)')->execute([$id, $code]);
+                logAction($pdo, $adminId, 'succes_add', "joueur#$id", $code);
+            } elseif ($mode === 'remove') {
+                $pdo->prepare('DELETE FROM joueur_succes WHERE joueur_id = ? AND code = ?')->execute([$id, $code]);
+                logAction($pdo, $adminId, 'succes_remove', "joueur#$id", $code);
+            } elseif ($mode === 'reset_claim') {
+                $pdo->prepare('UPDATE joueur_succes SET recompense_reclamee = 0 WHERE joueur_id = ? AND code = ?')->execute([$id, $code]);
+                logAction($pdo, $adminId, 'succes_reset_claim', "joueur#$id", $code);
+            } else {
+                reply(422, ['error' => 'invalid_mode']);
+            }
+            reply(200, ['ok' => true]);
             break;
 
         case 'player_update':

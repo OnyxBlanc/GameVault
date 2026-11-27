@@ -72,6 +72,161 @@
     box.replaceChildren(kpis, title, logs);
   }
 
+  async function loadPlayerCollection(player, q = '') {
+    const box = byId('a-body');
+    const topBar = el('div', 'a-bar');
+    const back = el('button', 'ghost', '← Retour aux joueurs');
+    back.type = 'button';
+    back.addEventListener('click', () => loadPlayers(''));
+    const title = el('strong', '', `Collection de ${player.pseudo} (#${player.id})`);
+    topBar.append(back, title);
+
+    const addBar = el('div', 'a-bar');
+    const idIn = document.createElement('input');
+    idIn.type = 'number';
+    idIn.min = '1';
+    idIn.placeholder = 'ID du jeu à ajouter…';
+    const qtyIn = document.createElement('input');
+    qtyIn.type = 'number';
+    qtyIn.min = '1';
+    qtyIn.value = '1';
+    qtyIn.style.maxWidth = '6rem';
+    const addBtn = el('button', 'primary', 'Ajouter / Définir');
+    addBtn.type = 'button';
+    addBtn.addEventListener('click', async () => {
+      const jeuId = Number(idIn.value);
+      const qty = Number(qtyIn.value) || 1;
+      if (!jeuId) return;
+      try {
+        await call('player_card_set', 'POST', { id: player.id, jeu_id: jeuId, quantite: qty });
+        setMsg(`Jeu #${jeuId} (×${qty}) ajouté à ${player.pseudo}.`);
+        loadPlayerCollection(player, q);
+      } catch (err) { setMsg(err.message); }
+    });
+    addBar.append(idIn, qtyIn, addBtn);
+
+    const searchBar = el('div', 'a-bar');
+    const searchIn = document.createElement('input');
+    searchIn.type = 'search';
+    searchIn.placeholder = 'Filtrer dans sa collection…';
+    searchIn.value = q;
+    const searchBtn = el('button', '', 'Filtrer');
+    searchBtn.type = 'button';
+    searchBtn.addEventListener('click', () => loadPlayerCollection(player, searchIn.value.trim()));
+    searchIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadPlayerCollection(player, searchIn.value.trim()); });
+    searchBar.append(searchIn, searchBtn);
+
+    const list = el('div', 'a-list');
+    box.replaceChildren(topBar, addBar, searchBar, list);
+
+    const data = await call(`player_collection&id=${player.id}&q=${encodeURIComponent(q)}`, 'GET');
+    if (!data.items.length) {
+      list.append(el('p', 'a-tag', 'Aucune carte trouvée.'));
+      return;
+    }
+    data.items.forEach((c) => {
+      const row = el('article', 'a-row');
+      const head = el('div', 'a-row-top');
+      head.append(el('strong', '', `#${c.jeu_id} ${c.titre}`), el('span', 'a-tag', c.rarete));
+      const actions = el('div', 'a-actions');
+      const qIn = document.createElement('input');
+      qIn.type = 'number';
+      qIn.min = '0';
+      qIn.value = String(c.quantite);
+      qIn.style.width = '5.5rem';
+      const saveBtn = el('button', 'primary', 'Modifier qté');
+      saveBtn.type = 'button';
+      saveBtn.addEventListener('click', async () => {
+        try {
+          await call('player_card_set', 'POST', { id: player.id, jeu_id: c.jeu_id, quantite: Number(qIn.value) || 0 });
+          setMsg(`Quantité mise à jour pour « ${c.titre} ».`);
+          loadPlayerCollection(player, q);
+        } catch (err) { setMsg(err.message); }
+      });
+      const delBtn = el('button', 'a-danger', 'Retirer');
+      delBtn.type = 'button';
+      delBtn.addEventListener('click', async () => {
+        try {
+          await call('player_card_set', 'POST', { id: player.id, jeu_id: c.jeu_id, quantite: 0 });
+          setMsg(`« ${c.titre} » retiré de la collection de ${player.pseudo}.`);
+          loadPlayerCollection(player, q);
+        } catch (err) { setMsg(err.message); }
+      });
+      actions.append(qIn, saveBtn, delBtn);
+      row.append(head, actions);
+      list.append(row);
+    });
+  }
+
+  async function loadPlayerSucces(player) {
+    const box = byId('a-body');
+    const topBar = el('div', 'a-bar');
+    const back = el('button', 'ghost', '← Retour aux joueurs');
+    back.type = 'button';
+    back.addEventListener('click', () => loadPlayers(''));
+    const title = el('strong', '', `Succès de ${player.pseudo} (#${player.id})`);
+    topBar.append(back, title);
+
+    const addBar = el('div', 'a-bar');
+    const codeIn = document.createElement('input');
+    codeIn.type = 'text';
+    codeIn.placeholder = 'Code succès à débloquer (ex: rar_ethere)…';
+    const addBtn = el('button', 'primary', 'Débloquer');
+    addBtn.type = 'button';
+    addBtn.addEventListener('click', async () => {
+      const code = codeIn.value.trim();
+      if (!code) return;
+      try {
+        await call('player_succes_set', 'POST', { id: player.id, code, mode: 'add' });
+        setMsg(`Succès « ${code} » ajouté à ${player.pseudo}.`);
+        loadPlayerSucces(player);
+      } catch (err) { setMsg(err.message); }
+    });
+    addBar.append(codeIn, addBtn);
+
+    const list = el('div', 'a-list');
+    box.replaceChildren(topBar, addBar, list);
+
+    const data = await call(`player_succes&id=${player.id}`, 'GET');
+    if (!data.items.length) {
+      list.append(el('p', 'a-tag', 'Aucun succès débloqué.'));
+      return;
+    }
+    data.items.forEach((s) => {
+      const row = el('article', 'a-row');
+      const head = el('div', 'a-row-top');
+      head.append(
+        el('strong', '', s.code),
+        el('span', 'a-tag', `${s.recompense_reclamee ? 'Réclamé' : 'Non réclamé'} · ${s.debloque_le}`)
+      );
+      const actions = el('div', 'a-actions');
+      if (s.recompense_reclamee) {
+        const resetBtn = el('button', '', 'Rendre réclamable');
+        resetBtn.type = 'button';
+        resetBtn.addEventListener('click', async () => {
+          try {
+            await call('player_succes_set', 'POST', { id: player.id, code: s.code, mode: 'reset_claim' });
+            setMsg(`Réclamation réinitialisée pour « ${s.code} ».`);
+            loadPlayerSucces(player);
+          } catch (err) { setMsg(err.message); }
+        });
+        actions.append(resetBtn);
+      }
+      const delBtn = el('button', 'a-danger', 'Retirer');
+      delBtn.type = 'button';
+      delBtn.addEventListener('click', async () => {
+        try {
+          await call('player_succes_set', 'POST', { id: player.id, code: s.code, mode: 'remove' });
+          setMsg(`Succès « ${s.code} » retiré.`);
+          loadPlayerSucces(player);
+        } catch (err) { setMsg(err.message); }
+      });
+      actions.append(delBtn);
+      row.append(head, actions);
+      list.append(row);
+    });
+  }
+
   async function loadPlayers(q = '') {
     const box = byId('a-body');
     const bar = el('div', 'a-bar');
@@ -140,6 +295,14 @@
       fields.append(credLab, boostLab, admLab, saveBtn);
 
       const actions = el('div', 'a-actions');
+      const manageCol = el('button', '', 'Gérer collection');
+      manageCol.type = 'button';
+      manageCol.addEventListener('click', () => loadPlayerCollection(p, ''));
+
+      const manageSuc = el('button', '', 'Gérer succès');
+      manageSuc.type = 'button';
+      manageSuc.addEventListener('click', () => loadPlayerSucces(p));
+
       const timeoutBtn = el('button', '', 'Timeout');
       timeoutBtn.type = 'button';
       timeoutBtn.addEventListener('click', async () => {
@@ -177,7 +340,7 @@
         } catch (err) { setMsg(err.message); }
       });
 
-      const clearSuc = el('button', 'a-danger', 'Retirer succès');
+      const clearSuc = el('button', 'a-danger', 'Retirer tous les succès');
       clearSuc.type = 'button';
       clearSuc.addEventListener('click', async () => {
         if (!window.confirm(`Retirer tous les succès de ${p.pseudo} ?`)) return;
@@ -188,7 +351,7 @@
         } catch (err) { setMsg(err.message); }
       });
 
-      actions.append(timeoutBtn, banBtn, clearCol, clearSuc);
+      actions.append(manageCol, manageSuc, timeoutBtn, banBtn, clearCol, clearSuc);
       row.append(top, fields, actions);
       list.append(row);
     });
