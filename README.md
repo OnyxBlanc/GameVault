@@ -48,3 +48,7 @@ database/mysql/
 ## Déploiement sur InfinityFree
 
 Le déploiement s'effectue via l'action GitHub **Déployer GameVault sur InfinityFree** (FTPS). Après chaque mise à jour incluant une migration SQL, exécuter d'abord le script SQL correspondant dans phpMyAdmin puis lancer le workflow de déploiement.
+
+## Licence
+
+Copyright © 2026 OnyxBlanc. Ce projet est distribué sous licence **GNU Affero General Public License v3.0 (AGPL-3.0)** — voir le fichier [LICENSE](./LICENSE).
