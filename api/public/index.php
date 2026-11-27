@@ -79,16 +79,20 @@ function body(): array
 
 function userPayload(PDO $pdo, int $id): ?array
 {
-    $st = $pdo->prepare('SELECT pseudo, credits, starter_claimed FROM joueurs WHERE id = ?');
+    $st = $pdo->prepare('SELECT pseudo, credits, starter_claimed, is_admin, banned, timeout_until, ban_reason, (timeout_until IS NOT NULL AND timeout_until > NOW()) AS in_timeout FROM joueurs WHERE id = ?');
     $st->execute([$id]);
     $row = $st->fetch();
     if (!$row) {
+        return null;
+    }
+    if ((int) $row['banned'] === 1 || (int) $row['in_timeout'] === 1) {
         return null;
     }
     return [
         'pseudo' => $row['pseudo'],
         'credits' => (int) $row['credits'],
         'starter_claimed' => (int) $row['starter_claimed'],
+        'is_admin' => (int) $row['is_admin'],
     ];
 }
 
@@ -254,11 +258,17 @@ try {
             $d = body();
             $pseudo = is_string($d['pseudo'] ?? null) ? trim($d['pseudo']) : '';
             $password = is_string($d['password'] ?? null) ? $d['password'] : '';
-            $st = $pdo->prepare('SELECT id, password_hash FROM joueurs WHERE pseudo = ?');
+            $st = $pdo->prepare('SELECT id, password_hash, banned, timeout_until, ban_reason, (timeout_until IS NOT NULL AND timeout_until > NOW()) AS in_timeout FROM joueurs WHERE pseudo = ?');
             $st->execute([$pseudo]);
             $row = $st->fetch();
             if (!$row || !password_verify($password, $row['password_hash'])) {
                 reply(401, ['error' => 'invalid_credentials']);
+            }
+            if ((int) $row['banned'] === 1) {
+                reply(403, ['error' => 'banned', 'reason' => $row['ban_reason']]);
+            }
+            if ((int) $row['in_timeout'] === 1) {
+                reply(403, ['error' => 'timeout', 'until' => $row['timeout_until'], 'reason' => $row['ban_reason']]);
             }
             startSession();
             session_regenerate_id(true);

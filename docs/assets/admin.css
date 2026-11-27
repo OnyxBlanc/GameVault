@@ -1,0 +1,30 @@
+.a-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:1.1rem 1.4rem;border:1px solid var(--line);border-radius:16px;background:linear-gradient(120deg,#1a1212,#111118 65%)}
+.a-head h2{margin:0;font-size:1.45rem}
+.a-subtabs{display:flex;flex-wrap:wrap;gap:.35rem}
+.a-subtabs button{padding:.4rem .85rem;font-size:.86rem}
+.a-subtabs button.active{background:var(--accent);color:#14120a;border-color:var(--accent);font-weight:700}
+.a-msg{color:#fca5a5;min-height:1.4rem;margin:0 0 .75rem}
+.a-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.85rem;margin-bottom:1.25rem}
+.a-kpi{padding:1rem 1.15rem;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.a-kpi span{display:block;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
+.a-kpi strong{display:block;font-size:1.5rem;margin-top:.2rem;font-variant-numeric:tabular-nums}
+.a-bar{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+.a-bar input{flex:1 1 15rem}
+.a-list{display:grid;gap:.75rem}
+.a-row{display:grid;gap:.65rem;padding:1rem;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.a-row-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem}
+.a-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.a-tag{font-size:.72rem;font-weight:700;padding:.12rem .5rem;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.a-tag.adm{color:#f5c518;border-color:#7a6210}
+.a-tag.ban{color:#fca5a5;border-color:#7f1d1d}
+.a-fields{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
+.a-fields label{display:grid;gap:.2rem;font-size:.78rem;color:var(--muted)}
+.a-fields input[type=number],.a-fields select{width:7.5rem}
+.a-actions{display:flex;flex-wrap:wrap;gap:.45rem}
+.a-danger{border-color:#7f1d1d;color:#fca5a5}
+.a-danger:hover:not(:disabled){border-color:#ef4444;color:#fecaca}
+.a-logs{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}
+.a-logs li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:.84rem}
+.a-logs .meta{color:var(--muted)}
+.a-form{display:grid;gap:.85rem;max-width:30rem;padding:1.2rem;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.a-form label{display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:.92rem}
