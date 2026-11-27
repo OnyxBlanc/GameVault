@@ -36,16 +36,29 @@ const ACHIEVEMENTS = [
     ['code' => 'rar_rare', 'titre' => 'Touche bleue', 'description' => 'Obtenir au moins 1 carte Rare.', 'categorie' => 'Raretés', 'metric' => 'r_rare', 'cible' => 1, 'recompense' => 100],
     ['code' => 'rar_rare_25', 'titre' => 'Chasseur de saphirs', 'description' => 'Posséder 25 jeux Rares différents.', 'categorie' => 'Raretés', 'metric' => 'r_rare', 'cible' => 25, 'recompense' => 600],
     ['code' => 'rar_rare_250', 'titre' => 'Trésor azur', 'description' => 'Posséder 250 jeux Rares différents.', 'categorie' => 'Raretés', 'metric' => 'r_rare', 'cible' => 250, 'recompense' => 3000],
+    ['code' => 'rar_rare_1000', 'titre' => 'Voûte de cobalt', 'description' => 'Posséder 1 000 jeux Rares différents.', 'categorie' => 'Raretés', 'metric' => 'r_rare', 'cible' => 1000, 'recompense' => 10000],
+    ['code' => 'rar_rare_5000', 'titre' => 'Océan de saphirs', 'description' => 'Posséder 5 000 jeux Rares différents.', 'categorie' => 'Raretés', 'metric' => 'r_rare', 'cible' => 5000, 'recompense' => 35000],
+
     ['code' => 'rar_epique', 'titre' => 'Éclat violet', 'description' => 'Obtenir au moins 1 carte Épique.', 'categorie' => 'Raretés', 'metric' => 'r_epique', 'cible' => 1, 'recompense' => 250],
     ['code' => 'rar_epique_10', 'titre' => 'Aventurier épique', 'description' => 'Posséder 10 jeux Épiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_epique', 'cible' => 10, 'recompense' => 1200],
     ['code' => 'rar_epique_100', 'titre' => 'Héros d’améthyste', 'description' => 'Posséder 100 jeux Épiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_epique', 'cible' => 100, 'recompense' => 6000],
+    ['code' => 'rar_epique_500', 'titre' => 'Seigneur d’améthyste', 'description' => 'Posséder 500 jeux Épiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_epique', 'cible' => 500, 'recompense' => 20000],
+    ['code' => 'rar_epique_1500', 'titre' => 'Empereur épique', 'description' => 'Posséder 1 500 jeux Épiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_epique', 'cible' => 1500, 'recompense' => 50000],
+
     ['code' => 'rar_legendaire', 'titre' => 'Légende vivante', 'description' => 'Obtenir au moins 1 carte Légendaire.', 'categorie' => 'Raretés', 'metric' => 'r_legendaire', 'cible' => 1, 'recompense' => 600],
     ['code' => 'rar_legendaire_5', 'titre' => 'Panthéon doré', 'description' => 'Posséder 5 jeux Légendaires différents.', 'categorie' => 'Raretés', 'metric' => 'r_legendaire', 'cible' => 5, 'recompense' => 2500],
     ['code' => 'rar_legendaire_25', 'titre' => 'Couronne solaire', 'description' => 'Posséder 25 jeux Légendaires différents.', 'categorie' => 'Raretés', 'metric' => 'r_legendaire', 'cible' => 25, 'recompense' => 10000],
+    ['code' => 'rar_legendaire_75', 'titre' => 'Dynastie d’or', 'description' => 'Posséder 75 jeux Légendaires différents.', 'categorie' => 'Raretés', 'metric' => 'r_legendaire', 'cible' => 75, 'recompense' => 25000],
+    ['code' => 'rar_legendaire_200', 'titre' => 'Souverain légendaire', 'description' => 'Posséder 200 jeux Légendaires différents.', 'categorie' => 'Raretés', 'metric' => 'r_legendaire', 'cible' => 200, 'recompense' => 60000],
+
     ['code' => 'rar_mythique', 'titre' => 'Mythe', 'description' => 'Obtenir au moins 1 carte Mythique.', 'categorie' => 'Raretés', 'metric' => 'r_mythique', 'cible' => 1, 'recompense' => 2000],
     ['code' => 'rar_mythique_5', 'titre' => 'Forgeron de mythes', 'description' => 'Posséder 5 jeux Mythiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_mythique', 'cible' => 5, 'recompense' => 10000],
+    ['code' => 'rar_mythique_15', 'titre' => 'Chroniqueur mythique', 'description' => 'Posséder 15 jeux Mythiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_mythique', 'cible' => 15, 'recompense' => 30000],
+    ['code' => 'rar_mythique_35', 'titre' => 'Incarnation du mythe', 'description' => 'Posséder 35 jeux Mythiques différents.', 'categorie' => 'Raretés', 'metric' => 'r_mythique', 'cible' => 35, 'recompense' => 75000],
+
     ['code' => 'rar_ethere', 'titre' => 'Touché par l’Éther', 'description' => 'Obtenir au moins 1 carte Éthérée.', 'categorie' => 'Raretés', 'metric' => 'r_ethere', 'cible' => 1, 'recompense' => 10000],
     ['code' => 'rar_ethere_3', 'titre' => 'Au-delà du voile', 'description' => 'Posséder 3 jeux Éthérés différents.', 'categorie' => 'Raretés', 'metric' => 'r_ethere', 'cible' => 3, 'recompense' => 50000],
+    ['code' => 'rar_ethere_8', 'titre' => 'Maître de l’Éther', 'description' => 'Posséder 8 jeux Éthérés différents.', 'categorie' => 'Raretés', 'metric' => 'r_ethere', 'cible' => 8, 'recompense' => 150000],
 
     ['code' => 'genres_10', 'titre' => 'Touche-à-tout', 'description' => 'Posséder des jeux dans 10 genres différents.', 'categorie' => 'Diversité', 'metric' => 'genres', 'cible' => 10, 'recompense' => 300],
     ['code' => 'genres_15', 'titre' => 'Éclectique', 'description' => 'Posséder des jeux dans 15 genres différents.', 'categorie' => 'Diversité', 'metric' => 'genres', 'cible' => 15, 'recompense' => 1000],
