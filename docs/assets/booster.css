@@ -41,8 +41,11 @@
 .back{display:flex;align-items:center;justify-content:center;font-size:2.6rem;font-weight:800;letter-spacing:.08em;color:var(--accent);background:repeating-linear-gradient(45deg,#17140a 0 10px,#100e07 10px 20px);border:2px solid #7a6210}
 .back svg{width:46%;height:auto}
 .front{transform:rotateY(180deg);box-shadow:0 0 0 2px var(--rc),0 0 26px color-mix(in srgb,var(--rc) 55%,transparent)}
-.front .card{height:100%;border-color:var(--rc);border-radius:inherit}
+.front .card{height:100%;border-color:var(--rc);border-radius:inherit;padding-bottom:.55rem}
 .front .card:hover{transform:none;box-shadow:none}
+.front .card .media{flex:1 1 0;min-height:0;aspect-ratio:auto}
+.front .card h3{flex:none;margin:.45rem .65rem 0;font-size:.88rem;line-height:1.25}
+.front .card .meta{flex:none;margin:.2rem .65rem 0;font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rarity{position:absolute;left:.5rem;top:.5rem;z-index:2;background:var(--rc);color:#0b1020;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:0 .55rem;border-radius:999px}
 .best-tag{position:absolute;left:50%;top:-.65rem;transform:translateX(-50%);z-index:4;background:#09090d;color:var(--rc);border:1px solid var(--rc);font-size:.68rem;font-weight:800;white-space:nowrap;padding:.1rem .6rem;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.6)}
 .holo{position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;opacity:0;mix-blend-mode:color-dodge;background:linear-gradient(115deg,transparent 15%,rgba(255,0,150,.6) 32%,rgba(0,255,220,.6) 48%,rgba(255,230,0,.6) 64%,transparent 80%);background-size:260% 260%;background-position:var(--mx,50%) var(--my,50%);transition:opacity .25s}
