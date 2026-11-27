@@ -7,4 +7,5 @@ cp docs/assets/* dist/assets/
 php -l api/public/index.php
 php -l api/public/booster.php
 php -l api/public/carte.php
-cp api/public/index.php api/public/booster.php api/public/carte.php dist/api/
+php -l api/public/succes.php
+cp api/public/index.php api/public/booster.php api/public/carte.php api/public/succes.php dist/api/

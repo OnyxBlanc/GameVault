@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS joueur_succes (
+  joueur_id BIGINT UNSIGNED NOT NULL,
+  code VARCHAR(48) NOT NULL,
+  debloque_le TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  recompense_reclamee TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (joueur_id, code),
+  FOREIGN KEY (joueur_id) REFERENCES joueurs(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

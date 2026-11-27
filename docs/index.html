@@ -9,9 +9,11 @@
 <link rel='stylesheet' href='./assets/style.css?v=3'>
 <link rel='stylesheet' href='./assets/booster.css?v=4'>
 <link rel='stylesheet' href='./assets/inspect.css?v=3'>
+<link rel='stylesheet' href='./assets/succes.css?v=1'>
 <script src='./assets/app.js?v=3' defer></script>
 <script src='./assets/booster.js?v=4' defer></script>
 <script src='./assets/inspect.js?v=3' defer></script>
+<script src='./assets/succes.js?v=1' defer></script>
 </head>
 <body>
 <header class='top'>
@@ -23,6 +25,7 @@
     <button type='button' class='tab active' data-view='catalogue'>Catalogue</button>
     <button type='button' class='tab' data-view='collection'>Ma collection</button>
     <button type='button' id='tab-booster'>Boosters</button>
+    <button type='button' id='tab-succes'>Succès</button>
   </nav>
   <div id='account' class='account'></div>
 </header>
@@ -71,6 +74,17 @@
     <p id='b-msg' role='status'></p>
     <p id='b-summary' role='status'></p>
     <div id='b-result' class='grid'></div>
+  </section>
+  <section id='succes' hidden>
+    <div class='s-head'>
+      <div>
+        <h2>Succès</h2>
+        <p id='s-summary'></p>
+      </div>
+      <button type='button' id='s-claim-all' class='primary' hidden></button>
+    </div>
+    <p id='s-msg' class='s-msg' role='status'></p>
+    <div id='s-grid' class='s-grid'></div>
   </section>
 </main>
 <dialog id='auth'>
