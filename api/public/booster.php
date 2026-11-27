@@ -7,13 +7,13 @@ const MAX_FREE = 50;
 const MAX_OPEN = 50;
 const INTERVAL = 300;
 const ODDS = [
-    ['ethere', 100],
-    ['mythique', 900],
-    ['legendaire', 10000],
-    ['epique', 40000],
+    ['ethere', 10],
+    ['mythique', 750],
+    ['legendaire', 4500],
+    ['epique', 15000],
     ['rare', 100000],
     ['peu_commun', 250000],
-    ['commun', 599000],
+    ['commun', 629740],
 ];
 
 header('Content-Type: application/json; charset=utf-8');

@@ -20,7 +20,7 @@
     mythique: 'Mythique',
     ethere: 'Éthéré'
   };
-  const ODDS = { ethere: 0.0001, mythique: 0.0009, legendaire: 0.01, epique: 0.04, rare: 0.10, peu_commun: 0.25 };
+  const ODDS = { ethere: 0.00001, mythique: 0.00075, legendaire: 0.0045, epique: 0.015, rare: 0.10, peu_commun: 0.25 };
   const SHOWN = ['peu_commun', 'rare', 'epique', 'legendaire', 'mythique', 'ethere'];
   const VAULT = "<svg width='64' height='64' viewBox='0 0 32 32' aria-hidden='true'><path d='M16 5l9 5v12l-9 5-9-5V10z' fill='none' stroke='#f5c518' stroke-width='2' stroke-linejoin='round'/><path d='M16 11l5 5-5 5-5-5z' fill='#f5c518'/></svg>";
   const byId = (id) => document.getElementById(id);
@@ -127,7 +127,8 @@
       bar.append(fill);
       const value = document.createElement('span');
       value.className = 'pct';
-      value.textContent = (pct < 10 ? pct.toFixed(2) : pct.toFixed(1)).replace('.', ',') + ' %';
+      const formatted = pct < 0.1 ? pct.toFixed(3) : (pct < 10 ? pct.toFixed(2) : pct.toFixed(1));
+      value.textContent = formatted.replace('.', ',') + ' %';
       row.append(dot, name, bar, value);
       return row;
     }));
