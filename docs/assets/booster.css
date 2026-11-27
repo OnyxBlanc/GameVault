@@ -44,6 +44,7 @@
 .front .card{height:100%;border-color:var(--rc);border-radius:inherit}
 .front .card:hover{transform:none;box-shadow:none}
 .rarity{position:absolute;left:.5rem;top:.5rem;z-index:2;background:var(--rc);color:#0b1020;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:0 .55rem;border-radius:999px}
+.best-tag{position:absolute;left:50%;top:-.65rem;transform:translateX(-50%);z-index:4;background:#09090d;color:var(--rc);border:1px solid var(--rc);font-size:.68rem;font-weight:800;white-space:nowrap;padding:.1rem .6rem;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.6)}
 .holo{position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;opacity:0;mix-blend-mode:color-dodge;background:linear-gradient(115deg,transparent 15%,rgba(255,0,150,.6) 32%,rgba(0,255,220,.6) 48%,rgba(255,230,0,.6) 64%,transparent 80%);background-size:260% 260%;background-position:var(--mx,50%) var(--my,50%);transition:opacity .25s}
 .flip.open:hover .holo{opacity:var(--holo)}
 .r-peu_commun{--rc:#4ade80;--holo:.15}
@@ -56,6 +57,31 @@
 .flip.open.r-legendaire .holo,.flip.open.r-mythique .holo,.flip.open.r-ethere .holo{opacity:.4;animation:sheen 4s linear infinite}
 .flip.open.r-legendaire:hover .holo,.flip.open.r-mythique:hover .holo,.flip.open.r-ethere:hover .holo{animation:none;opacity:var(--holo)}
 .flip.open.r-ethere .front{animation:aura 2.4s ease-in-out infinite}
+.gv-reveal{--glow:#d68b28;display:grid;justify-items:center;gap:.85rem;padding:clamp(1.5rem,5vh,3.5rem) 1rem 2rem;border:1px solid var(--line);border-radius:20px;background:#08080c;background:radial-gradient(ellipse at 50% 42%,color-mix(in srgb,var(--glow) 28%,#08080c),#08080c 72%)}
+.gv-reveal[data-tier=peu_commun]{--glow:#4ade80}
+.gv-reveal[data-tier=rare]{--glow:#38bdf8}
+.gv-reveal[data-tier=epique]{--glow:#a855f7}
+.gv-reveal[data-tier=legendaire]{--glow:#fbbf24}
+.gv-reveal[data-tier=mythique]{--glow:#f43f5e}
+.gv-reveal[data-tier=ethere]{--glow:#22d3ee}
+.gv-reveal-pile{position:relative;isolation:isolate;width:min(280px,74vw);cursor:pointer}
+.gv-reveal-pile::before,.gv-reveal-pile::after{content:"";position:absolute;inset:0;z-index:-1;border:1px solid color-mix(in srgb,var(--glow) 45%,#211b18);border-radius:.9rem;background:#171217;pointer-events:none}
+.gv-reveal-pile::before{transform:translate(7px,-6px) rotate(4deg)}
+.gv-reveal-pile::after{transform:translate(4px,-3px) rotate(2deg)}
+.gv-reveal-pile .flip{width:100%}
+.gv-reveal-tier{margin:0;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--glow);min-height:1.2em}
+.gv-reveal-caption{min-height:1.5em;margin:0;color:var(--text);font-size:1.15rem;font-weight:800;text-align:center}
+.gv-reveal-thumbs{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin:.15rem 0}
+.gv-thumb{width:28px;height:40px;border-radius:6px;background:#151520;border:1px solid var(--line);overflow:hidden;opacity:.55;transition:opacity .2s,border-color .2s,transform .2s}
+.gv-thumb.done{opacity:1;border-color:var(--rc,#9ca3af)}
+.gv-thumb.now{opacity:1;border-color:var(--accent);transform:scale(1.08)}
+.gv-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.gv-reveal-progress{margin:0;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.gv-reveal-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:.65rem;margin-top:.35rem}
+.gv-fan{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:1rem;padding:1.25rem .5rem .5rem}
+.gv-fan .flip{width:min(170px,42vw)}
+.gv-fan .flip.best-card{transform:translateY(-14px) scale(1.06);z-index:2}
+@media (min-width:900px){.gv-fan{flex-wrap:nowrap;gap:.85rem}.gv-fan .flip:nth-child(1){transform:rotate(-5deg) translateY(8px)}.gv-fan .flip:nth-child(2){transform:rotate(-2deg) translateY(2px)}.gv-fan .flip:nth-child(4){transform:rotate(2deg) translateY(2px)}.gv-fan .flip:nth-child(5){transform:rotate(5deg) translateY(8px)}.gv-fan .flip.best-card{transform:translateY(-16px) scale(1.08)}}
 @keyframes rip{0%{transform:scale(1.03)}40%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1)}}
 @keyframes deal{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes pulse{50%{box-shadow:0 0 34px var(--rc),inset 0 0 26px color-mix(in srgb,var(--rc) 60%,transparent)}}

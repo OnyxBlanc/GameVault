@@ -29,6 +29,7 @@
   let visible = false;
   let timer = null;
   let revealTimers = [];
+  let activeReveal = null;
   let lastKey = '';
   let selected = 1;
   let dragStart = null;
@@ -170,7 +171,7 @@
       lastKey = '';
       return;
     }
-    stage.hidden = false;
+    stage.hidden = Boolean(activeReveal);
     byId('b-timer').textContent = info.free >= info.max_free
       ? 'Stock plein (50/50)'
       : 'Prochain booster gratuit dans ' + formatTime(info.next_in);
@@ -247,14 +248,6 @@
     return wrap;
   }
 
-  function showPack(items) {
-    revealTimers.forEach(clearTimeout);
-    revealTimers = [];
-    const sorted = items.slice().sort((a, b) => TIERS.indexOf(a.rarete) - TIERS.indexOf(b.rarete));
-    byId('b-result').replaceChildren(...sorted.map((game, index) => makeCard(game, index, false)));
-    updateRevealButton();
-  }
-
   function showSummary(data) {
     revealTimers.forEach(clearTimeout);
     revealTimers = [];
@@ -262,7 +255,27 @@
       const diff = TIERS.indexOf(b.rarete) - TIERS.indexOf(a.rarete);
       return diff !== 0 ? diff : a.titre.localeCompare(b.titre);
     });
-    byId('b-result').replaceChildren(...sorted.map((game, index) => makeCard(game, index, true)));
+    const isFan = sorted.length > 0 && sorted.length <= 5;
+    const ordered = sorted.slice();
+    let bestIndex = 0;
+    if (isFan && ordered.length >= 3) {
+      const best = ordered.shift();
+      bestIndex = Math.floor(ordered.length / 2);
+      ordered.splice(bestIndex, 0, best);
+    }
+    const result = byId('b-result');
+    result.className = isFan ? 'grid gv-fan' : 'grid';
+    result.replaceChildren(...ordered.map((game, index) => {
+      const wrap = makeCard(game, index, true);
+      if (index === bestIndex && ordered.length > 0) {
+        wrap.classList.add('best-card');
+        const badge = document.createElement('span');
+        badge.className = 'best-tag';
+        badge.textContent = 'Meilleure carte';
+        wrap.append(badge);
+      }
+      return wrap;
+    }));
     updateRevealButton();
   }
 
@@ -283,6 +296,187 @@
     closed.forEach((wrap, index) => {
       revealTimers.push(setTimeout(() => reveal(wrap), index * 450));
     });
+  }
+
+  function cancelCardReveal() {
+    if (activeReveal) {
+      activeReveal();
+    }
+  }
+
+  function startCardReveal(data) {
+    cancelCardReveal();
+    const stage = byId('b-stage');
+    const result = byId('b-result');
+    const summary = byId('b-summary');
+    const revealAllButton = byId('b-reveal');
+
+    const cards = data.items
+      .slice()
+      .sort((a, b) => TIERS.indexOf(a.rarete) - TIERS.indexOf(b.rarete))
+      .flatMap((game) => Array.from({ length: game.obtenu }, () => Object.assign({}, game, { obtenu: 1 })));
+
+    if (!cards.length) {
+      showSummary(data);
+      summary.textContent = summaryText(data);
+      return;
+    }
+
+    const el = (tag, className, text) => {
+      const node = document.createElement(tag);
+      if (className) {
+        node.className = className;
+      }
+      if (text !== undefined) {
+        node.textContent = text;
+      }
+      return node;
+    };
+
+    const scene = el('section', 'gv-reveal');
+    scene.setAttribute('aria-label', 'Révélation des cartes');
+    const pile = el('div', 'gv-reveal-pile');
+    const tierLine = el('p', 'gv-reveal-tier');
+    const caption = el('p', 'gv-reveal-caption');
+    caption.setAttribute('aria-live', 'polite');
+
+    const showThumbs = cards.length <= 10;
+    const thumbs = showThumbs ? el('div', 'gv-reveal-thumbs') : null;
+    const thumbNodes = showThumbs ? cards.map(() => {
+      const slot = el('span', 'gv-thumb');
+      thumbs.append(slot);
+      return slot;
+    }) : [];
+
+    const progress = el('p', 'gv-reveal-progress');
+    const controls = el('div', 'gv-reveal-controls');
+    const next = el('button', 'primary');
+    const skip = el('button', 'ghost', 'Tout révéler');
+    next.type = 'button';
+    skip.type = 'button';
+    controls.append(next, skip);
+    scene.append(pile, tierLine, caption);
+    if (thumbs) {
+      scene.append(thumbs);
+    }
+    scene.append(progress, controls);
+
+    let index = 0;
+    let faceUp = false;
+    let card = null;
+
+    function cleanup() {
+      scene.remove();
+      activeReveal = null;
+      render();
+    }
+
+    function finish() {
+      cleanup();
+      showSummary(data);
+      summary.textContent = summaryText(data);
+      const actions = el('div', 'gv-reveal-controls');
+      const again = el('button', 'primary', 'Ouvrir un autre');
+      const collection = el('button', 'ghost', 'Voir ma collection');
+      again.type = 'button';
+      collection.type = 'button';
+      again.addEventListener('click', () => {
+        byId('b-open').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        byId('b-open').focus();
+      });
+      collection.addEventListener('click', () => {
+        const tab = document.querySelector('[data-view="collection"]');
+        if (tab) {
+          tab.click();
+        }
+      });
+      actions.append(again, collection);
+      summary.append(actions);
+      summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateThumbs(revealed) {
+      if (!showThumbs) {
+        return;
+      }
+      thumbNodes.forEach((slot, i) => {
+        slot.classList.toggle('now', i === index);
+        if (i === index && revealed && !slot.classList.contains('done')) {
+          const game = cards[i];
+          const tier = TIERS.includes(game.rarete) ? game.rarete : 'commun';
+          slot.classList.add('done', 'r-' + tier);
+          if (typeof game.image_url === 'string' && game.image_url.startsWith('https://')) {
+            const img = document.createElement('img');
+            img.src = game.image_url;
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            slot.replaceChildren(img);
+          }
+        }
+      });
+    }
+
+    function showFaceDown() {
+      const game = cards[index];
+      faceUp = false;
+      scene.dataset.tier = 'commun';
+      const visual = makeCard(game, 0, true);
+      card = visual.cloneNode(true);
+      card.classList.remove('open', 'teaser');
+      card.removeAttribute('tabindex');
+      card.removeAttribute('role');
+      card.removeAttribute('aria-pressed');
+      card.removeAttribute('aria-label');
+      card.setAttribute('aria-hidden', 'true');
+      pile.replaceChildren(card);
+      tierLine.textContent = '';
+      caption.textContent = 'Touche la carte pour la retourner';
+      progress.textContent = `${index + 1} / ${cards.length}`;
+      next.textContent = 'Retourner la carte';
+      updateThumbs(false);
+    }
+
+    function advance() {
+      if (!faceUp) {
+        const game = cards[index];
+        const tier = TIERS.includes(game.rarete) ? game.rarete : 'commun';
+        faceUp = true;
+        card.classList.add('open');
+        scene.dataset.tier = tier;
+        tierLine.textContent = LABELS[tier];
+        caption.textContent = game.titre;
+        next.textContent = index + 1 === cards.length ? 'Voir le bilan' : 'Carte suivante';
+        updateThumbs(true);
+        return;
+      }
+      if (++index >= cards.length) {
+        finish();
+      } else {
+        showFaceDown();
+      }
+    }
+
+    revealTimers.forEach(clearTimeout);
+    revealTimers = [];
+    result.replaceChildren();
+    result.className = 'grid';
+    revealAllButton.hidden = true;
+    summary.textContent = '';
+    activeReveal = cleanup;
+    stage.hidden = true;
+    stage.after(scene);
+
+    pile.addEventListener('click', advance);
+    next.addEventListener('click', advance);
+    skip.addEventListener('click', finish);
+    next.addEventListener('keydown', (event) => {
+      if (event.repeat && (event.key === ' ' || event.key === 'Enter')) {
+        event.preventDefault();
+      }
+    });
+
+    showFaceDown();
+    next.focus();
   }
 
   async function refresh() {
@@ -330,14 +524,10 @@
     byId('b-summary').textContent = '';
     try {
       const data = await call('open', 'POST', { count });
-      if (count === 1) {
-        showPack(data.items);
-      } else {
-        showSummary(data);
-      }
-      byId('b-summary').textContent = summaryText(data);
       applyState(data.state);
-      byId('b-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (visible && state.user) {
+        startCardReveal(data);
+      }
     } catch (error) {
       byId('b-msg').textContent = error.message;
     }
@@ -391,6 +581,7 @@
   }
 
   function hideBooster() {
+    cancelCardReveal();
     visible = false;
     clearInterval(timer);
     byId('browse').hidden = false;
